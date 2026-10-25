@@ -366,9 +366,10 @@ jobs:
           FAIL_ON: ${{ fromJSON(needs.policy.outputs.policy).security.sast.failOn }}
           TARGET: ${{ inputs.working-directory }}
         run: |
-          severities="--severity ERROR"
-          [ "$FAIL_ON" = "warning" ] && severities="--severity ERROR --severity WARNING"
-          semgrep scan --metrics=off --error $severities \
+          # POSIX sh (the semgrep image may not ship bash): severities as positional args
+          set -- --severity ERROR
+          if [ "$FAIL_ON" = "warning" ]; then set -- "$@" --severity WARNING; fi
+          semgrep scan --metrics=off --error "$@" \
             --config .guardrails/security/semgrep \
             --config p/typescript \
             --exclude .guardrails --exclude reports \
