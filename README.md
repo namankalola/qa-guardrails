@@ -6,7 +6,7 @@ bounds, and nobody can switch off the hard floors.
 
 | #   | Guardrail                   | Enforced by                                                                                                                                                                                                             |
 | --- | --------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| 1   | **Code quality**            | `@ariseqa/eslint-config` (typescript-eslint type-checked rules, complexity), `tsc --noEmit`, Prettier, commitlint                                                                                                       |
+| 1   | **Code quality**            | `@namankalola/eslint-config` (typescript-eslint type-checked rules, complexity), `tsc --noEmit`, Prettier, commitlint                                                                                                   |
 | 2   | **Automation framework**    | `ariseqa` ESLint plugin: no raw `page`/locators in specs, private readonly locators, WebActions-only interactions, app isolation, fixtures-only imports                                                                 |
 | 3   | **Automated test quality**  | Playwright lint rules (no hard waits, no `.only`, assertions required), required tags, `withGuardrails()` (retry cap, forbidOnly, quarantine exclusion), quarantine + flake-rate gates                                  |
 | 4   | **Security & dependencies** | gitleaks (floor), Semgrep enterprise rules, optional CodeQL, npm/pnpm audit gate (critical = floor), licence gate, OSV, CycloneDX SBOM, ZAP baseline (opt-in, authorised hosts only), Hadolint + Trivy for images       |
@@ -16,12 +16,12 @@ bounds, and nobody can switch off the hard floors.
 
 ```
 packages/
-  guardrails/             @ariseqa/guardrails            policy engine + CLI gates (validate, audit, licenses, quarantine, flakes, pinned-actions, dast-target)
-  eslint-config/          @ariseqa/eslint-config         flat config + ariseqa plugin + floor config
-  playwright-guardrails/  @ariseqa/playwright-guardrails withGuardrails() + quarantine()
-  tsconfig/               @ariseqa/tsconfig              base.json / strictest.json
-  prettier-config/        @ariseqa/prettier-config
-  commitlint-config/      @ariseqa/commitlint-config
+  guardrails/             @namankalola/guardrails            policy engine + CLI gates (validate, audit, licenses, quarantine, flakes, pinned-actions, dast-target)
+  eslint-config/          @namankalola/eslint-config         flat config + ariseqa plugin + floor config
+  playwright-guardrails/  @namankalola/playwright-guardrails withGuardrails() + quarantine()
+  tsconfig/               @namankalola/tsconfig              base.json / strictest.json
+  prettier-config/        @namankalola/prettier-config
+  commitlint-config/      @namankalola/commitlint-config
 .github/
   workflows/guardrails.yml          reusable PR/push pipeline (the gate)
   workflows/dast.yml                reusable ZAP baseline
@@ -40,7 +40,7 @@ docs/                     architecture, controls matrix, overrides, rollout runb
 
 1. Copy `templates/consumer/` into the repo. Adjust `test-command` in
    `.github/workflows/guardrails.yml` and `team` in `guardrails.config.yml`.
-2. `npm i -D @ariseqa/eslint-config @ariseqa/playwright-guardrails @ariseqa/commitlint-config eslint@^10 husky lint-staged @commitlint/cli`
+2. `npm i -D @namankalola/eslint-config @namankalola/playwright-guardrails @namankalola/commitlint-config eslint@^10 husky lint-staged @commitlint/cli`
 3. Replace the legacy `.eslintrc*` with the template `eslint.config.mjs`, and wrap the Playwright config:
    `export default withGuardrails(defineConfig({...}), { name: 'my-app' })`.
 4. `npx eslint . --fix`, then fix what remains. `npm run typecheck`.

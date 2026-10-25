@@ -1,5 +1,5 @@
 {
-  "name": "@ariseqa/tsconfig",
+  "name": "@namankalola/tsconfig",
   "version": "1.0.0",
   "description": "Shared strict TypeScript configs",
   "files": [
@@ -12,7 +12,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/ariseqa/qa-guardrails.git",
+    "url": "git+https://github.com/namankalola/qa-guardrails.git",
     "directory": "packages/tsconfig"
   },
   "publishConfig": {

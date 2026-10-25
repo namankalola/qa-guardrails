@@ -4,7 +4,7 @@ import tseslint from 'typescript-eslint';
 import playwrightPlugin from 'eslint-plugin-playwright';
 import prettier from 'eslint-config-prettier';
 import globals from 'globals';
-import { resolvePolicy } from '@ariseqa/guardrails';
+import { resolvePolicy } from '@namankalola/guardrails';
 import ariseqaQa from './plugin/index.js';
 
 export { ariseqaQa };
@@ -42,7 +42,7 @@ const HARD_WAIT_RULES = {
  * Rule severities and globs are driven by the repo's guardrails.config.yml so
  * local lint, the pre-commit hook and CI all apply the same policy.
  *
- * @param {{ tsconfigRootDir?: string, policy?: import('@ariseqa/guardrails').Policy, ignores?: string[] }} [options]
+ * @param {{ tsconfigRootDir?: string, policy?: import('@namankalola/guardrails').Policy, ignores?: string[] }} [options]
  */
 export function createConfig({ tsconfigRootDir = process.cwd(), policy, ignores = [] } = {}) {
   const { codeQuality, framework, testQuality } = policy ?? resolvePolicy({ cwd: tsconfigRootDir }).policy;

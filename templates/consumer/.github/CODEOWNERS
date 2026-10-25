@@ -1,9 +1,9 @@
 # Default owners for everything
-*                          @ariseqa/my-team
+*                          @namankalola
 
 # Shared framework code and guardrail wiring need framework-owner review
-/src/core/                 @ariseqa/qa-platform
-/playwright.*.config.ts    @ariseqa/qa-platform
-/guardrails.config.yml     @ariseqa/qa-platform
-/.github/                  @ariseqa/qa-platform
-/.gitleaks.toml            @ariseqa/appsec
+/src/core/                 @namankalola
+/playwright.*.config.ts    @namankalola
+/guardrails.config.yml     @namankalola
+/.github/                  @namankalola
+/.gitleaks.toml            @namankalola

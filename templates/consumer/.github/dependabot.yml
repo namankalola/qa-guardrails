@@ -16,7 +16,7 @@ updates:
     schedule: { interval: weekly }
     open-pull-requests-limit: 10
     groups:
-      ariseqa-guardrails: { patterns: ['@ariseqa/*'] }
+      ariseqa-guardrails: { patterns: ['@namankalola/*'] }
       playwright: { patterns: ['@playwright/*', 'allure-*'] }
       lint-tooling:
         {

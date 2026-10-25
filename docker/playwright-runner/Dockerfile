@@ -2,7 +2,7 @@
 # Version must match @playwright/test in the consuming repo (browsers are baked in).
 FROM mcr.microsoft.com/playwright:v1.64.1-noble
 
-LABEL org.opencontainers.image.source="https://github.com/ariseqa/qa-guardrails" \
+LABEL org.opencontainers.image.source="https://github.com/namankalola/qa-guardrails" \
       org.opencontainers.image.description="AriseQA Playwright runner (non-root, reproducible install)"
 
 ENV CI=true \

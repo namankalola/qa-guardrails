@@ -4,7 +4,7 @@
 #
 #   jobs:
 #     guardrails:
-#       uses: ariseqa/qa-guardrails/.github/workflows/guardrails.yml@v1
+#       uses: namankalola/qa-guardrails/.github/workflows/guardrails.yml@v1
 #       with:
 #         test-command: npm run test:smoke
 #
@@ -44,7 +44,7 @@ on:
         default: 30
     secrets:
       guardrails-token:
-        description: Token able to read ariseqa/qa-guardrails (only needed while that repository is private)
+        description: Token able to read namankalola/qa-guardrails (only needed while that repository is private)
         required: false
       test-env:
         description: dotenv-formatted secrets written to .env for the test job only
@@ -53,7 +53,7 @@ on:
 permissions: {}
 
 env:
-  GUARDRAILS_REPOSITORY: ariseqa/qa-guardrails
+  GUARDRAILS_REPOSITORY: namankalola/qa-guardrails
   FORCE_COLOR: '1'
 
 jobs:
@@ -424,7 +424,7 @@ jobs:
         with:
           node-version: ${{ inputs.node-version }}
       - name: Third-party actions pinned to commit SHAs
-        run: ${{ steps.tools.outputs.cli }} pinned-actions --trusted-owner ariseqa
+        run: ${{ steps.tools.outputs.cli }} pinned-actions --trusted-owner namankalola
 
   # The one required status check. Fails if any gate failed, or if a floor job did not succeed.
   gate:

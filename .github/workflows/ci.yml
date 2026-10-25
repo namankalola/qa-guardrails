@@ -31,7 +31,7 @@ jobs:
       - name: Own policy and workflows must pass the guardrails
         run: |
           pnpm guardrails validate > /dev/null
-          pnpm guardrails pinned-actions --trusted-owner ariseqa
+          pnpm guardrails pinned-actions --trusted-owner namankalola
       - name: actionlint (checksum verified)
         env:
           ACTIONLINT_VERSION: 1.7.12

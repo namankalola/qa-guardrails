@@ -61,7 +61,7 @@ export const policySchema = z.strictObject({
     licenses: z.strictObject({
       allow: z.array(z.string().min(1)).min(1),
       additionalAllow: z.array(z.string().min(1)),
-      internalScopes: z.array(z.string().regex(/^@[\w.-]+$/, 'scopes look like @ariseqa')),
+      internalScopes: z.array(z.string().regex(/^@[\w.-]+$/, 'scopes look like @namankalola')),
       exceptions: z.array(z.strictObject({ package: z.string().min(1), reason: z.string().min(10) })),
     }),
     sast: z.strictObject({

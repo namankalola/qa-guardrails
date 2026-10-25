@@ -6,7 +6,7 @@ import requireTestTag from './rules/require-test-tag.js';
 
 /** `ariseqa` ESLint plugin: the framework's architecture rules as code. */
 export default {
-  meta: { name: '@ariseqa/eslint-plugin-qa', version: '1.0.0' },
+  meta: { name: '@namankalola/eslint-plugin-qa', version: '1.0.0' },
   rules: {
     'no-page-in-spec': noPageInSpec,
     'no-inline-locator': noInlineLocator,

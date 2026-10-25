@@ -14,7 +14,7 @@ jobs:
   publish:
     runs-on: ubuntu-latest
     timeout-minutes: 15
-    environment: release # protected environment: requires approval from @ariseqa/qa-platform
+    environment: release # protected environment: requires approval from @namankalola
     permissions:
       contents: write
       packages: write
@@ -28,7 +28,7 @@ jobs:
         with:
           node-version-file: .nvmrc
           registry-url: https://npm.pkg.github.com
-          scope: '@ariseqa'
+          scope: '@namankalola'
       - run: corepack enable && pnpm install --frozen-lockfile --ignore-scripts
       - run: pnpm test && pnpm lint --max-warnings 0
       - name: Check tag matches package versions

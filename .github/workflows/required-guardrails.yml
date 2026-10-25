@@ -16,7 +16,7 @@ permissions:
 
 jobs:
   guardrails:
-    if: github.repository != 'ariseqa/qa-guardrails'
-    uses: ariseqa/qa-guardrails/.github/workflows/guardrails.yml@v1
+    if: github.repository != 'namankalola/qa-guardrails'
+    uses: namankalola/qa-guardrails/.github/workflows/guardrails.yml@v1
     with:
       guardrails-ref: v1

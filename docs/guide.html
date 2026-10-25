@@ -649,7 +649,7 @@
             </li>
             <li><span>Apps never import from sibling apps</span><span class="chip conf">bounded</span></li>
           </ul>
-          <p class="tools">@ariseqa/eslint-config → ariseqa plugin (5 rules, unit-tested with ESLint RuleTester)</p>
+          <p class="tools">@namankalola/eslint-config → ariseqa plugin (5 rules, unit-tested with ESLint RuleTester)</p>
         </div>
       </article>
       <article class="sheet">
@@ -685,7 +685,7 @@
             </li>
           </ul>
           <p class="tools">
-            @ariseqa/playwright-guardrails <code>withGuardrails()</code>, quarantine and flake gates over Playwright
+            @namankalola/playwright-guardrails <code>withGuardrails()</code>, quarantine and flake gates over Playwright
             JSON reports
           </p>
         </div>
@@ -991,7 +991,7 @@
       <pre><span class="c"># .github/workflows/guardrails.yml</span>
 <span class="k">jobs</span>:
   <span class="k">guardrails</span>:
-    <span class="k">uses</span>: ariseqa/qa-guardrails/.github/workflows/guardrails.yml@&lt;sha&gt;
+    <span class="k">uses</span>: namankalola/qa-guardrails/.github/workflows/guardrails.yml@&lt;sha&gt;
     <span class="k">with</span>:
       <span class="k">guardrails-ref</span>: v1
       <span class="k">test-command</span>: npm run test:smoke
@@ -1111,7 +1111,7 @@
         <span class="when">~1 day</span>
         <p>
           Push the repo, set up the protected <code>release</code> environment, tag v1.0.0 to publish the
-          <code>@ariseqa/*</code> packages.
+          <code>@namankalola/*</code> packages.
         </p>
       </li>
       <li>
@@ -1188,8 +1188,8 @@
         <tbody>
           <tr>
             <td>
-              Create the <code>ariseqa/qa-guardrails</code> repo and the <code>@ariseqa/qa-platform</code>,
-              <code>@ariseqa/appsec</code> and <code>@ariseqa/platform-leads</code> teams used in CODEOWNERS
+              Create the <code>namankalola/qa-guardrails</code> repo and the <code>@namankalola</code>,
+              <code>@namankalola</code> and <code>@namankalola</code> teams used in CODEOWNERS
             </td>
             <td>QA platform</td>
             <td><span class="chip bad">blocking</span></td>
@@ -1225,7 +1225,8 @@
   </section>
 
   <footer>
-    Source of truth: <code>ariseqa/qa-guardrails</code> (policy defaults in <code>packages/guardrails/defaults.yml</code>, ADRs
-    in <code>docs/adr/</code>). Questions go to the QA platform team.
+    Source of truth: <code>namankalola/qa-guardrails</code> (policy defaults in
+    <code>packages/guardrails/defaults.yml</code>, ADRs in <code>docs/adr/</code>). Questions go to the QA platform
+    team.
   </footer>
 </div>

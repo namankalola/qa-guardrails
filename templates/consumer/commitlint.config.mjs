@@ -1,1 +1,1 @@
-export { default } from '@ariseqa/commitlint-config';
+export { default } from '@namankalola/commitlint-config';

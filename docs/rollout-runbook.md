@@ -2,13 +2,19 @@
 
 ## Phase 0: platform setup (QA platform + AppSec, about 1 day)
 
-1. Create `ariseqa/qa-guardrails` (internal or public; it contains no secrets) and push.
-2. Create the `release` environment with required reviewers `@ariseqa/qa-platform`.
-3. Settings → Actions → _Access_: allow other org repos to use workflows from this repo.
-   If the repo is private, create a GitHub App with `contents:read` on it and give consumers its
-   token as the `guardrails-token` secret.
-4. Tag `v1.0.0`. `release.yml` publishes `@ariseqa/*` to GitHub Packages and creates the `v1` tag.
-5. Create the custom repository property `guardrails` (values: `enforced`, `onboarding`).
+1. Create `namankalola/qa-guardrails` and push. Keep it **public**: public consumers (such as
+   `playwright-web-api-framework`) cannot call reusable workflows in a private repository.
+2. Create the `release` environment with required reviewer `@namankalola`.
+3. Tag `v1.0.0`. `release.yml` publishes `@namankalola/*` to GitHub Packages and creates the `v1` tag.
+   Consumers need a token with `read:packages` (`NODE_AUTH_TOKEN` locally; in Actions, grant the
+   consumer repo access in the package settings).
+
+> **Personal account limits.** The guardrails live on a personal account for now, which means:
+> no teams (CODEOWNERS names `@namankalola`), no org-level rulesets, required workflows or
+> repository properties (phase 3 below waits for an organisation), and a sole owner cannot
+> approve their own PR, so a required approval needs a second collaborator. Until one exists,
+> apply the ruleset with `required_approving_review_count: 0` and keep every other rule.
+> Moving to an organisation later only changes the owner in references (`namankalola/` and `@namankalola/`).
 
 ## Phase 1: pilot, warn mode (2 weeks, 1–2 repos)
 
@@ -28,7 +34,7 @@
 
 - Set the `guardrails=enforced` property on onboarded repos.
 - Activate `governance/rulesets/org-required-workflow.json` at org level. Fill in the
-  `repository_id` of this repo (`gh api repos/ariseqa/qa-guardrails --jq .id`).
+  `repository_id` of this repo (`gh api repos/namankalola/qa-guardrails --jq .id`).
 - Flip `supplyChain.pinnedActions` default to `block` in the next minor release.
 
 ## Operating

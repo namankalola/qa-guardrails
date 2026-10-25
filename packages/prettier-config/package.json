@@ -1,5 +1,5 @@
 {
-  "name": "@ariseqa/prettier-config",
+  "name": "@namankalola/prettier-config",
   "version": "1.0.0",
   "description": "Shared Prettier config",
   "main": "index.json",
@@ -11,7 +11,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/ariseqa/qa-guardrails.git",
+    "url": "git+https://github.com/namankalola/qa-guardrails.git",
     "directory": "packages/prettier-config"
   },
   "publishConfig": {

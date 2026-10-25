@@ -61,7 +61,7 @@ security:
       - Python-2.0
       - Zlib
     additionalAllow: [] # team additions; copyleft/source-available licenses are rejected
-    internalScopes: ['@ariseqa'] # first-party packages (UNLICENSED, proprietary) are not third-party dependencies
+    internalScopes: ['@namankalola'] # first-party packages (UNLICENSED, proprietary) are not third-party dependencies
     exceptions: [] # - { package: 'name', reason: '...' }
   sast:
     semgrep: true

@@ -41,12 +41,12 @@ importers:
 
   packages/eslint-config:
     dependencies:
-      '@ariseqa/guardrails':
-        specifier: workspace:^
-        version: link:../guardrails
       '@eslint/js':
         specifier: ^10.0.1
         version: 10.0.1(eslint@10.13.0(jiti@2.7.0))
+      '@namankalola/guardrails':
+        specifier: workspace:^
+        version: link:../guardrails
       eslint-config-prettier:
         specifier: ^10.1.8
         version: 10.1.8(eslint@10.13.0(jiti@2.7.0))

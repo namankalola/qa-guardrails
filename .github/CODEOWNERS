@@ -1,7 +1,8 @@
-# Every change to the guardrails needs QA platform review; floors and security
-# tooling also need AppSec. Governance changes need both plus a platform lead.
-*                       @ariseqa/qa-platform
-/packages/guardrails/   @ariseqa/qa-platform @ariseqa/appsec
-/security/              @ariseqa/appsec
-/.github/workflows/     @ariseqa/qa-platform @ariseqa/appsec
-/governance/            @ariseqa/qa-platform @ariseqa/appsec @ariseqa/platform-leads
+# Hosted on a personal account, so there are no teams yet. When this moves to an
+# organisation, split ownership: QA platform for everything, AppSec for
+# packages/guardrails, security and workflows, platform leads for governance.
+*                       @namankalola
+/packages/guardrails/   @namankalola
+/security/              @namankalola
+/.github/workflows/     @namankalola
+/governance/            @namankalola

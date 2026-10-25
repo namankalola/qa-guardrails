@@ -1,5 +1,5 @@
 {
-  "name": "@ariseqa/commitlint-config",
+  "name": "@namankalola/commitlint-config",
   "version": "1.0.0",
   "description": "Shared commitlint config (Conventional Commits)",
   "type": "module",
@@ -15,7 +15,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/ariseqa/qa-guardrails.git",
+    "url": "git+https://github.com/namankalola/qa-guardrails.git",
     "directory": "packages/commitlint-config"
   },
   "publishConfig": {
