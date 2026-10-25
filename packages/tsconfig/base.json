@@ -1,6 +1,6 @@
 {
   "$schema": "https://json.schemastore.org/tsconfig",
-  "display": "ACME base (strict)",
+  "display": "AriseQA base (strict)",
   "compilerOptions": {
     "target": "ES2022",
     "lib": ["ES2023", "DOM"],

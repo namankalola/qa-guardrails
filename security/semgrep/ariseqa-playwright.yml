@@ -2,7 +2,7 @@
 # ERROR blocks the PR (security.sast.failOn: error); WARNING blocks only when a
 # team opts into failOn: warning.
 rules:
-  - id: acme.tls-verification-disabled
+  - id: ariseqa.tls-verification-disabled
     languages: [typescript, javascript]
     severity: ERROR
     message: >-
@@ -14,7 +14,7 @@ rules:
       - pattern: '{..., rejectUnauthorized: false, ...}'
       - pattern: '{..., ignoreHTTPSErrors: true, ...}'
 
-  - id: acme.hardcoded-authorization-header
+  - id: ariseqa.hardcoded-authorization-header
     languages: [typescript, javascript]
     severity: ERROR
     message: >-
@@ -30,7 +30,7 @@ rules:
           metavariable: $TOKEN
           regex: '^(Bearer |Basic )?[A-Za-z0-9._~+/=-]{12,}$'
 
-  - id: acme.request-headers-logged
+  - id: ariseqa.request-headers-logged
     languages: [typescript, javascript]
     severity: WARNING
     message: >-
@@ -43,7 +43,7 @@ rules:
     paths:
       exclude: ['**/*.spec.ts']
 
-  - id: acme.secret-logged
+  - id: ariseqa.secret-logged
     languages: [typescript, javascript]
     severity: WARNING
     message: A value that looks like a credential is logged. Redact it before logging.
@@ -56,7 +56,7 @@ rules:
           metavariable: $F
           regex: '(?i)^(password|passwd|secret|token|apikey|api_key|apiKey|authorization|accessToken|refreshToken)$'
 
-  - id: acme.shell-command-injection
+  - id: ariseqa.shell-command-injection
     languages: [typescript, javascript]
     severity: ERROR
     message: Shell command built with interpolation. Use execFile/spawn with an argument array.
@@ -67,7 +67,7 @@ rules:
       - pattern: '$CP.exec(`...${$X}...`, ...)'
       - pattern: '$CP.execSync(`...${$X}...`, ...)'
 
-  - id: acme.dynamic-code-execution
+  - id: ariseqa.dynamic-code-execution
     languages: [typescript, javascript]
     severity: ERROR
     message: Dynamic code execution (eval / Function constructor / vm) is not allowed.
@@ -78,7 +78,7 @@ rules:
       - pattern: vm.runInThisContext(...)
       - pattern: vm.runInNewContext(...)
 
-  - id: acme.query-language-interpolation
+  - id: ariseqa.query-language-interpolation
     languages: [typescript, javascript]
     severity: WARNING
     message: >-
@@ -87,7 +87,7 @@ rules:
     metadata: { category: security, cwe: 'CWE-943' }
     pattern-regex: '(?i)`[^`]*\b(project|status|issuekey|where)\s*(=|in)\s*[''"(]?\$\{'
 
-  - id: acme.insecure-random-test-data
+  - id: ariseqa.insecure-random-test-data
     languages: [typescript, javascript]
     severity: WARNING
     message: Math.random() used for something named like a secret. Use crypto.randomUUID() / randomBytes().
@@ -98,7 +98,7 @@ rules:
           metavariable: $V
           regex: '(?i).*(password|secret|token|key).*'
 
-  - id: acme.playwright-only-committed
+  - id: ariseqa.playwright-only-committed
     languages: [typescript, javascript]
     severity: ERROR
     message: test.only / describe.only would silently disable the rest of the suite in CI.

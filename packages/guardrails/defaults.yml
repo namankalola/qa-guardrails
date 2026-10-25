@@ -1,4 +1,4 @@
-# Enterprise defaults for every repository onboarded to the ACME QA guardrails.
+# Enterprise defaults for every repository onboarded to the AriseQA guardrails.
 #
 # Teams override values in their own `guardrails.config.yml`. Every override is
 # validated against bounded limits (see src/schema.mjs). Keys marked FLOOR are
@@ -61,7 +61,7 @@ security:
       - Python-2.0
       - Zlib
     additionalAllow: [] # team additions; copyleft/source-available licenses are rejected
-    internalScopes: ['@acme'] # first-party packages (UNLICENSED, proprietary) are not third-party dependencies
+    internalScopes: ['@ariseqa'] # first-party packages (UNLICENSED, proprietary) are not third-party dependencies
     exceptions: [] # - { package: 'name', reason: '...' }
   sast:
     semgrep: true

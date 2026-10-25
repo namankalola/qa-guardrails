@@ -40,7 +40,7 @@ jobs:
 
   dast:
     # Enable security.dast in guardrails.config.yml first, with authorizedHosts.
-    uses: acme-org/acme-qa-guardrails/.github/workflows/dast.yml@v1
+    uses: ariseqa/qa-guardrails/.github/workflows/dast.yml@v1
     with:
       guardrails-ref: v1
 
@@ -51,7 +51,7 @@ jobs:
       packages: write
       id-token: write
       attestations: write
-    uses: acme-org/acme-qa-guardrails/.github/workflows/container.yml@v1
+    uses: ariseqa/qa-guardrails/.github/workflows/container.yml@v1
     with:
       guardrails-ref: v1
       push: ${{ github.ref == 'refs/heads/main' }}

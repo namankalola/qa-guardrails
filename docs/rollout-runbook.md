@@ -2,12 +2,12 @@
 
 ## Phase 0: platform setup (QA platform + AppSec, about 1 day)
 
-1. Create `acme-org/acme-qa-guardrails` (internal or public; it contains no secrets) and push.
-2. Create the `release` environment with required reviewers `@acme-org/qa-platform`.
+1. Create `ariseqa/qa-guardrails` (internal or public; it contains no secrets) and push.
+2. Create the `release` environment with required reviewers `@ariseqa/qa-platform`.
 3. Settings → Actions → _Access_: allow other org repos to use workflows from this repo.
    If the repo is private, create a GitHub App with `contents:read` on it and give consumers its
    token as the `guardrails-token` secret.
-4. Tag `v1.0.0`. `release.yml` publishes `@acme/*` to GitHub Packages and creates the `v1` tag.
+4. Tag `v1.0.0`. `release.yml` publishes `@ariseqa/*` to GitHub Packages and creates the `v1` tag.
 5. Create the custom repository property `guardrails` (values: `enforced`, `onboarding`).
 
 ## Phase 1: pilot, warn mode (2 weeks, 1–2 repos)
@@ -28,7 +28,7 @@
 
 - Set the `guardrails=enforced` property on onboarded repos.
 - Activate `governance/rulesets/org-required-workflow.json` at org level. Fill in the
-  `repository_id` of this repo (`gh api repos/acme-org/acme-qa-guardrails --jq .id`).
+  `repository_id` of this repo (`gh api repos/ariseqa/qa-guardrails --jq .id`).
 - Flip `supplyChain.pinnedActions` default to `block` in the next minor release.
 
 ## Operating

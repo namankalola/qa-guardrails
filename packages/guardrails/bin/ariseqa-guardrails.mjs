@@ -11,7 +11,7 @@ import { evaluateFlakes } from '../src/gates/flake.mjs';
 import { findUnpinned } from '../src/gates/pinned-actions.mjs';
 import { annotate, mdTable, setOutput, writeSummary } from '../src/report.mjs';
 
-const USAGE = `acme-guardrails <command> [options]
+const USAGE = `ariseqa-guardrails <command> [options]
 
 Commands
   validate        Resolve and validate guardrails.config.yml (writes the effective policy as output "policy")

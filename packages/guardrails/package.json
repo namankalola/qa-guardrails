@@ -1,10 +1,10 @@
 {
-  "name": "@acme/guardrails",
+  "name": "@ariseqa/guardrails",
   "version": "1.0.0",
-  "description": "Policy engine and CI gates for the ACME QA guardrails (policy resolution, audit/licence/flake/quarantine/pin gates)",
+  "description": "Policy engine and CI gates for the AriseQA guardrails (policy resolution, audit/licence/flake/quarantine/pin gates)",
   "type": "module",
   "bin": {
-    "acme-guardrails": "bin/acme-guardrails.mjs"
+    "ariseqa-guardrails": "bin/ariseqa-guardrails.mjs"
   },
   "exports": {
     ".": "./src/index.mjs",
@@ -24,7 +24,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/acme-org/acme-qa-guardrails.git",
+    "url": "git+https://github.com/ariseqa/qa-guardrails.git",
     "directory": "packages/guardrails"
   },
   "publishConfig": {

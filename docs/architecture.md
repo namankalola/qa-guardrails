@@ -24,7 +24,7 @@
 
 ```
 PR opened
-  └─ guardrails.yml (caller, 20 lines)  ──uses──▶  acme-qa-guardrails/.github/workflows/guardrails.yml@<sha>
+  └─ guardrails.yml (caller, 20 lines)  ──uses──▶  qa-guardrails/.github/workflows/guardrails.yml@<sha>
         policy ─────────────┬──────────────┬──────────────┬──────────────┬─────────────┐
         (validate + output) │              │              │              │             │
         secrets (FLOOR)   quality        tests        dependencies      sast       supply-chain

@@ -13,7 +13,7 @@ inputs:
 outputs:
   cli:
     description: Command that runs the guardrails CLI
-    value: node ${{ steps.paths.outputs.root }}/packages/guardrails/bin/acme-guardrails.mjs
+    value: node ${{ steps.paths.outputs.root }}/packages/guardrails/bin/ariseqa-guardrails.mjs
   root:
     description: Absolute path of the guardrails checkout
     value: ${{ steps.paths.outputs.root }}

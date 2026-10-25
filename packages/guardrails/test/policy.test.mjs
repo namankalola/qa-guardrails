@@ -61,7 +61,7 @@ test('DAST requires an authorised target', () => {
   assert.match(problemsOf(dast({})).join(), /targetUrl is required/);
   assert.match(problemsOf(dast({ targetUrl: 'https://www.saucedemo.com' })).join(), /not in authorizedHosts/);
   assert.deepEqual(
-    problemsOf(dast({ targetUrl: 'https://qa.acme.internal', authorizedHosts: ['qa.acme.internal'] })),
+    problemsOf(dast({ targetUrl: 'https://qa.ariseqa.internal', authorizedHosts: ['qa.ariseqa.internal'] })),
     [],
   );
 });

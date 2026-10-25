@@ -1,5 +1,5 @@
 {
-  "name": "@acme/tsconfig",
+  "name": "@ariseqa/tsconfig",
   "version": "1.0.0",
   "description": "Shared strict TypeScript configs",
   "files": [
@@ -12,7 +12,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/acme-org/acme-qa-guardrails.git",
+    "url": "git+https://github.com/ariseqa/qa-guardrails.git",
     "directory": "packages/tsconfig"
   },
   "publishConfig": {

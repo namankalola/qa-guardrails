@@ -1,5 +1,5 @@
 {
-  "name": "acme-guardrails-required-workflow",
+  "name": "ariseqa-guardrails-required-workflow",
   "target": "branch",
   "enforcement": "evaluate",
   "conditions": {

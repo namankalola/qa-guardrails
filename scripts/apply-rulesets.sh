@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # Apply the guardrails branch ruleset to one repository (idempotent: creates or updates by name).
 #
-#   scripts/apply-rulesets.sh acme-org/playwright-web-api-framework [--dry-run]
+#   scripts/apply-rulesets.sh ariseqa/playwright-web-api-framework [--dry-run]
 #
 # Requires the GitHub CLI authenticated as a repository admin.
 set -euo pipefail

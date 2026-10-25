@@ -1,173 +1,585 @@
-<title>ACME QA Guardrails</title>
-<meta name="claude:viewport-fit-sides" content="cover">
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@75..100,500..800&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<title>AriseQA Guardrails</title>
+<meta name="claude:viewport-fit-sides" content="cover" />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link
+  rel="stylesheet"
+  href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@75..100,500..800&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap"
+/>
 <style>
-/* Layout: a single reading column of "control sheets" - each guardrail reads like a road-sign panel; the pipeline is a lane diagram converging on one gate. */
-:root {
-  --paper: #f5f7f6;
-  --sheet: #ffffff;
-  --ink: #15211f;
-  --ink-2: #4a5a57;
-  --rule: #d6dedc;
-  --lane: #e7eeec;
-  --signal: #e8a317;      /* safety amber: hard floors */
-  --signal-ink: #5a3d00;
-  --teal: #11665c;        /* accent: links, configurable */
-  --teal-soft: #dcefeb;
-  --ok: #217a3c;
-  --ok-soft: #e1f2e5;
-  --bad: #b3261e;
-  --bad-soft: #fbe4e2;
-  --code-bg: #eef2f1;
-  --f-display: 'Archivo', 'Arial Narrow', Arial, sans-serif;
-  --f-body: 'IBM Plex Sans', 'Segoe UI', system-ui, sans-serif;
-  --f-mono: 'IBM Plex Mono', ui-monospace, 'Cascadia Mono', Consolas, monospace;
-  --s1: 4px; --s2: 8px; --s3: 12px; --s4: 16px; --s5: 24px; --s6: 32px; --s7: 48px; --s8: 72px;
-}
-@media (prefers-color-scheme: dark) {
-  :root:not([data-theme="light"]) {
-    --paper: #0f1514; --sheet: #161e1d; --ink: #e4ecea; --ink-2: #9db0ac; --rule: #2a3735; --lane: #1d2827;
-    --signal: #f0b43c; --signal-ink: #f6d48e; --teal: #5cc2b3; --teal-soft: #173a35;
-    --ok: #6fcf8a; --ok-soft: #173322; --bad: #ff8a80; --bad-soft: #3d1c1a; --code-bg: #1b2524;
+  /* Layout: a single reading column of "control sheets" - each guardrail reads like a road-sign panel; the pipeline is a lane diagram converging on one gate. */
+  :root {
+    --paper: #f5f7f6;
+    --sheet: #ffffff;
+    --ink: #15211f;
+    --ink-2: #4a5a57;
+    --rule: #d6dedc;
+    --lane: #e7eeec;
+    --signal: #e8a317; /* safety amber: hard floors */
+    --signal-ink: #5a3d00;
+    --teal: #11665c; /* accent: links, configurable */
+    --teal-soft: #dcefeb;
+    --ok: #217a3c;
+    --ok-soft: #e1f2e5;
+    --bad: #b3261e;
+    --bad-soft: #fbe4e2;
+    --code-bg: #eef2f1;
+    --f-display: 'Archivo', 'Arial Narrow', Arial, sans-serif;
+    --f-body: 'IBM Plex Sans', 'Segoe UI', system-ui, sans-serif;
+    --f-mono: 'IBM Plex Mono', ui-monospace, 'Cascadia Mono', Consolas, monospace;
+    --s1: 4px;
+    --s2: 8px;
+    --s3: 12px;
+    --s4: 16px;
+    --s5: 24px;
+    --s6: 32px;
+    --s7: 48px;
+    --s8: 72px;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme='light']) {
+      --paper: #0f1514;
+      --sheet: #161e1d;
+      --ink: #e4ecea;
+      --ink-2: #9db0ac;
+      --rule: #2a3735;
+      --lane: #1d2827;
+      --signal: #f0b43c;
+      --signal-ink: #f6d48e;
+      --teal: #5cc2b3;
+      --teal-soft: #173a35;
+      --ok: #6fcf8a;
+      --ok-soft: #173322;
+      --bad: #ff8a80;
+      --bad-soft: #3d1c1a;
+      --code-bg: #1b2524;
+      color-scheme: dark;
+    }
+  }
+  :root[data-theme='dark'] {
+    --paper: #0f1514;
+    --sheet: #161e1d;
+    --ink: #e4ecea;
+    --ink-2: #9db0ac;
+    --rule: #2a3735;
+    --lane: #1d2827;
+    --signal: #f0b43c;
+    --signal-ink: #f6d48e;
+    --teal: #5cc2b3;
+    --teal-soft: #173a35;
+    --ok: #6fcf8a;
+    --ok-soft: #173322;
+    --bad: #ff8a80;
+    --bad-soft: #3d1c1a;
+    --code-bg: #1b2524;
     color-scheme: dark;
   }
-}
-:root[data-theme="dark"] {
-  --paper: #0f1514; --sheet: #161e1d; --ink: #e4ecea; --ink-2: #9db0ac; --rule: #2a3735; --lane: #1d2827;
-  --signal: #f0b43c; --signal-ink: #f6d48e; --teal: #5cc2b3; --teal-soft: #173a35;
-  --ok: #6fcf8a; --ok-soft: #173322; --bad: #ff8a80; --bad-soft: #3d1c1a; --code-bg: #1b2524;
-  color-scheme: dark;
-}
 
-* { box-sizing: border-box; }
-body {
-  background: var(--paper); color: var(--ink);
-  font: 400 16px/1.6 var(--f-body);
-  padding-left: max(16px, env(safe-area-inset-left, 0px));
-  padding-right: max(16px, env(safe-area-inset-right, 0px));
-}
-.wrap { max-width: 1040px; margin: 0 auto; padding-block: var(--s7) var(--s8); display: grid; gap: var(--s8); }
-.prose { max-width: 68ch; }
-h1, h2, h3 { font-family: var(--f-display); text-wrap: balance; margin: 0; line-height: 1.1; }
-h1 { font-size: clamp(2.4rem, 6vw, 4rem); font-weight: 800; font-stretch: 80%; letter-spacing: -0.01em; }
-h2 { font-size: clamp(1.6rem, 3.4vw, 2.2rem); font-weight: 750; font-stretch: 85%; }
-h3 { font-size: 1.15rem; font-weight: 700; font-stretch: 90%; }
-p { margin: 0; }
-a { color: var(--teal); text-underline-offset: 3px; }
-a:focus-visible, button:focus-visible { outline: 3px solid var(--signal); outline-offset: 2px; }
-code, .mono { font-family: var(--f-mono); font-size: 0.88em; }
-code { background: var(--code-bg); padding: 1px 5px; border-radius: 4px; }
-.eyebrow { font: 600 0.75rem/1 var(--f-body); letter-spacing: 0.12em; text-transform: uppercase; color: var(--ink-2); }
-.section { display: grid; gap: var(--s5); }
-.section > header { display: grid; gap: var(--s3); }
-.lede { font-size: 1.15rem; color: var(--ink-2); }
+  * {
+    box-sizing: border-box;
+  }
+  body {
+    background: var(--paper);
+    color: var(--ink);
+    font: 400 16px/1.6 var(--f-body);
+    padding-left: max(16px, env(safe-area-inset-left, 0px));
+    padding-right: max(16px, env(safe-area-inset-right, 0px));
+  }
+  .wrap {
+    max-width: 1040px;
+    margin: 0 auto;
+    padding-block: var(--s7) var(--s8);
+    display: grid;
+    gap: var(--s8);
+  }
+  .prose {
+    max-width: 68ch;
+  }
+  h1,
+  h2,
+  h3 {
+    font-family: var(--f-display);
+    text-wrap: balance;
+    margin: 0;
+    line-height: 1.1;
+  }
+  h1 {
+    font-size: clamp(2.4rem, 6vw, 4rem);
+    font-weight: 800;
+    font-stretch: 80%;
+    letter-spacing: -0.01em;
+  }
+  h2 {
+    font-size: clamp(1.6rem, 3.4vw, 2.2rem);
+    font-weight: 750;
+    font-stretch: 85%;
+  }
+  h3 {
+    font-size: 1.15rem;
+    font-weight: 700;
+    font-stretch: 90%;
+  }
+  p {
+    margin: 0;
+  }
+  a {
+    color: var(--teal);
+    text-underline-offset: 3px;
+  }
+  a:focus-visible,
+  button:focus-visible {
+    outline: 3px solid var(--signal);
+    outline-offset: 2px;
+  }
+  code,
+  .mono {
+    font-family: var(--f-mono);
+    font-size: 0.88em;
+  }
+  code {
+    background: var(--code-bg);
+    padding: 1px 5px;
+    border-radius: 4px;
+  }
+  .eyebrow {
+    font: 600 0.75rem/1 var(--f-body);
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--ink-2);
+  }
+  .section {
+    display: grid;
+    gap: var(--s5);
+  }
+  .section > header {
+    display: grid;
+    gap: var(--s3);
+  }
+  .lede {
+    font-size: 1.15rem;
+    color: var(--ink-2);
+  }
 
-/* Hero */
-.hero { display: grid; gap: var(--s5); border-bottom: 1px solid var(--rule); padding-bottom: var(--s7); }
-.hero .stripe { height: 10px; width: 140px; background: repeating-linear-gradient(-45deg, var(--signal) 0 12px, var(--ink) 12px 24px); border-radius: 2px; }
-.meta { display: flex; flex-wrap: wrap; gap: var(--s2) var(--s5); color: var(--ink-2); font-size: 0.92rem; }
-.meta b { color: var(--ink); font-weight: 600; }
+  /* Hero */
+  .hero {
+    display: grid;
+    gap: var(--s5);
+    border-bottom: 1px solid var(--rule);
+    padding-bottom: var(--s7);
+  }
+  .hero .stripe {
+    height: 10px;
+    width: 140px;
+    background: repeating-linear-gradient(-45deg, var(--signal) 0 12px, var(--ink) 12px 24px);
+    border-radius: 2px;
+  }
+  .meta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--s2) var(--s5);
+    color: var(--ink-2);
+    font-size: 0.92rem;
+  }
+  .meta b {
+    color: var(--ink);
+    font-weight: 600;
+  }
 
-/* Chips */
-.chip { display: inline-flex; align-items: center; gap: 6px; font: 600 0.72rem/1 var(--f-body); letter-spacing: 0.06em; text-transform: uppercase; padding: 5px 8px; border-radius: 3px; white-space: nowrap; }
-.chip.floor { background: var(--signal); color: #2a1c00; }
-.chip.conf { background: var(--teal-soft); color: var(--teal); }
-.chip.ok { background: var(--ok-soft); color: var(--ok); }
-.chip.bad { background: var(--bad-soft); color: var(--bad); }
-.chip.opt { background: var(--lane); color: var(--ink-2); }
+  /* Chips */
+  .chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font: 600 0.72rem/1 var(--f-body);
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    padding: 5px 8px;
+    border-radius: 3px;
+    white-space: nowrap;
+  }
+  .chip.floor {
+    background: var(--signal);
+    color: #2a1c00;
+  }
+  .chip.conf {
+    background: var(--teal-soft);
+    color: var(--teal);
+  }
+  .chip.ok {
+    background: var(--ok-soft);
+    color: var(--ok);
+  }
+  .chip.bad {
+    background: var(--bad-soft);
+    color: var(--bad);
+  }
+  .chip.opt {
+    background: var(--lane);
+    color: var(--ink-2);
+  }
 
-/* Guardrail sheets */
-.sheets { display: grid; gap: var(--s4); }
-.sheet { background: var(--sheet); border: 1px solid var(--rule); border-radius: 6px; display: grid; grid-template-columns: 76px minmax(0, 1fr); overflow: hidden; }
-.sheet .num { background: var(--ink); color: var(--paper); font: 800 2rem/1 var(--f-display); font-stretch: 75%; display: grid; place-items: start center; padding-top: var(--s5); }
-.sheet .body { padding: var(--s5); display: grid; gap: var(--s3); min-width: 0; }
-.sheet .body > p { color: var(--ink-2); max-width: 70ch; }
-.controls { list-style: none; margin: 0; padding: 0; display: grid; gap: var(--s2); }
-.controls li { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: var(--s3); align-items: baseline; padding: var(--s2) 0; border-top: 1px dashed var(--rule); }
-.controls li span:first-child { min-width: 0; }
-.tools { font-size: 0.86rem; color: var(--ink-2); }
+  /* Guardrail sheets */
+  .sheets {
+    display: grid;
+    gap: var(--s4);
+  }
+  .sheet {
+    background: var(--sheet);
+    border: 1px solid var(--rule);
+    border-radius: 6px;
+    display: grid;
+    grid-template-columns: 76px minmax(0, 1fr);
+    overflow: hidden;
+  }
+  .sheet .num {
+    background: var(--ink);
+    color: var(--paper);
+    font: 800 2rem/1 var(--f-display);
+    font-stretch: 75%;
+    display: grid;
+    place-items: start center;
+    padding-top: var(--s5);
+  }
+  .sheet .body {
+    padding: var(--s5);
+    display: grid;
+    gap: var(--s3);
+    min-width: 0;
+  }
+  .sheet .body > p {
+    color: var(--ink-2);
+    max-width: 70ch;
+  }
+  .controls {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: grid;
+    gap: var(--s2);
+  }
+  .controls li {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    gap: var(--s3);
+    align-items: baseline;
+    padding: var(--s2) 0;
+    border-top: 1px dashed var(--rule);
+  }
+  .controls li span:first-child {
+    min-width: 0;
+  }
+  .tools {
+    font-size: 0.86rem;
+    color: var(--ink-2);
+  }
 
-/* Pipeline lanes */
-.pipeline { background: var(--sheet); border: 1px solid var(--rule); border-radius: 6px; padding: var(--s5); overflow-x: auto; }
-.lanes { display: grid; grid-template-columns: 150px repeat(6, minmax(120px, 1fr)) 120px; gap: var(--s2); min-width: 960px; align-items: stretch; }
-.node { border: 1px solid var(--rule); border-radius: 4px; padding: var(--s3); background: var(--paper); display: grid; gap: 4px; align-content: start; font-size: 0.82rem; }
-.node strong { font: 700 0.95rem/1.2 var(--f-mono); }
-.node.floor { border-color: var(--signal); box-shadow: inset 0 3px 0 var(--signal); }
-.node.gate { background: var(--ink); color: var(--paper); border-color: var(--ink); }
-.node.gate strong { color: var(--signal); }
-.node small { color: var(--ink-2); line-height: 1.4; }
-.node.gate small { color: inherit; opacity: 0.8; }
-.flow { grid-column: 1 / -1; display: flex; justify-content: space-between; font: 500 0.75rem var(--f-mono); color: var(--ink-2); border-top: 2px solid var(--rule); padding-top: var(--s2); }
-.legend { display: flex; flex-wrap: wrap; gap: var(--s3); margin-top: var(--s4); font-size: 0.85rem; color: var(--ink-2); align-items: center; }
+  /* Pipeline lanes */
+  .pipeline {
+    background: var(--sheet);
+    border: 1px solid var(--rule);
+    border-radius: 6px;
+    padding: var(--s5);
+    overflow-x: auto;
+  }
+  .lanes {
+    display: grid;
+    grid-template-columns: 150px repeat(6, minmax(120px, 1fr)) 120px;
+    gap: var(--s2);
+    min-width: 960px;
+    align-items: stretch;
+  }
+  .node {
+    border: 1px solid var(--rule);
+    border-radius: 4px;
+    padding: var(--s3);
+    background: var(--paper);
+    display: grid;
+    gap: 4px;
+    align-content: start;
+    font-size: 0.82rem;
+  }
+  .node strong {
+    font: 700 0.95rem/1.2 var(--f-mono);
+  }
+  .node.floor {
+    border-color: var(--signal);
+    box-shadow: inset 0 3px 0 var(--signal);
+  }
+  .node.gate {
+    background: var(--ink);
+    color: var(--paper);
+    border-color: var(--ink);
+  }
+  .node.gate strong {
+    color: var(--signal);
+  }
+  .node small {
+    color: var(--ink-2);
+    line-height: 1.4;
+  }
+  .node.gate small {
+    color: inherit;
+    opacity: 0.8;
+  }
+  .flow {
+    grid-column: 1 / -1;
+    display: flex;
+    justify-content: space-between;
+    font: 500 0.75rem var(--f-mono);
+    color: var(--ink-2);
+    border-top: 2px solid var(--rule);
+    padding-top: var(--s2);
+  }
+  .legend {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--s3);
+    margin-top: var(--s4);
+    font-size: 0.85rem;
+    color: var(--ink-2);
+    align-items: center;
+  }
 
-/* Tables */
-.table-wrap { overflow-x: auto; background: var(--sheet); border: 1px solid var(--rule); border-radius: 6px; }
-table { border-collapse: collapse; width: 100%; font-size: 0.9rem; font-variant-numeric: tabular-nums; }
-th, td { text-align: left; padding: 10px 14px; border-bottom: 1px solid var(--rule); vertical-align: top; }
-th { font: 600 0.72rem/1.2 var(--f-body); letter-spacing: 0.08em; text-transform: uppercase; color: var(--ink-2); background: var(--lane); }
-tr:last-child td { border-bottom: 0; }
-td.num { text-align: right; white-space: nowrap; font-family: var(--f-mono); }
+  /* Tables */
+  .table-wrap {
+    overflow-x: auto;
+    background: var(--sheet);
+    border: 1px solid var(--rule);
+    border-radius: 6px;
+  }
+  table {
+    border-collapse: collapse;
+    width: 100%;
+    font-size: 0.9rem;
+    font-variant-numeric: tabular-nums;
+  }
+  th,
+  td {
+    text-align: left;
+    padding: 10px 14px;
+    border-bottom: 1px solid var(--rule);
+    vertical-align: top;
+  }
+  th {
+    font: 600 0.72rem/1.2 var(--f-body);
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--ink-2);
+    background: var(--lane);
+  }
+  tr:last-child td {
+    border-bottom: 0;
+  }
+  td.num {
+    text-align: right;
+    white-space: nowrap;
+    font-family: var(--f-mono);
+  }
 
-/* Split: floor vs configurable */
-.split { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: var(--s4); }
-.panel { background: var(--sheet); border: 1px solid var(--rule); border-radius: 6px; padding: var(--s5); display: grid; gap: var(--s3); align-content: start; }
-.panel.floor { border-top: 6px solid var(--signal); }
-.panel.conf { border-top: 6px solid var(--teal); }
-.panel ul { margin: 0; padding-left: 1.1em; display: grid; gap: 6px; }
-.panel li::marker { color: var(--ink-2); }
+  /* Split: floor vs configurable */
+  .split {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: var(--s4);
+  }
+  .panel {
+    background: var(--sheet);
+    border: 1px solid var(--rule);
+    border-radius: 6px;
+    padding: var(--s5);
+    display: grid;
+    gap: var(--s3);
+    align-content: start;
+  }
+  .panel.floor {
+    border-top: 6px solid var(--signal);
+  }
+  .panel.conf {
+    border-top: 6px solid var(--teal);
+  }
+  .panel ul {
+    margin: 0;
+    padding-left: 1.1em;
+    display: grid;
+    gap: 6px;
+  }
+  .panel li::marker {
+    color: var(--ink-2);
+  }
 
-/* Results */
-.results { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: var(--s4); }
-.stat { background: var(--sheet); border: 1px solid var(--rule); border-radius: 6px; padding: var(--s4); display: grid; gap: 4px; align-content: start; }
-.stat .big { font: 800 2rem/1 var(--f-display); font-stretch: 80%; font-variant-numeric: tabular-nums; }
-.stat .big .from { color: var(--bad); }
-.stat .big .arrow { color: var(--ink-2); font-weight: 500; padding: 0 4px; }
-.stat .big .to { color: var(--ok); }
-.stat small { color: var(--ink-2); font-size: 0.85rem; line-height: 1.4; }
+  /* Results */
+  .results {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: var(--s4);
+  }
+  .stat {
+    background: var(--sheet);
+    border: 1px solid var(--rule);
+    border-radius: 6px;
+    padding: var(--s4);
+    display: grid;
+    gap: 4px;
+    align-content: start;
+  }
+  .stat .big {
+    font: 800 2rem/1 var(--f-display);
+    font-stretch: 80%;
+    font-variant-numeric: tabular-nums;
+  }
+  .stat .big .from {
+    color: var(--bad);
+  }
+  .stat .big .arrow {
+    color: var(--ink-2);
+    font-weight: 500;
+    padding: 0 4px;
+  }
+  .stat .big .to {
+    color: var(--ok);
+  }
+  .stat small {
+    color: var(--ink-2);
+    font-size: 0.85rem;
+    line-height: 1.4;
+  }
 
-/* Code */
-pre { margin: 0; background: var(--code-bg); border: 1px solid var(--rule); border-radius: 6px; padding: var(--s4); overflow-x: auto; font: 400 0.84rem/1.6 var(--f-mono); }
-pre .c { color: var(--ink-2); }
-pre .k { color: var(--teal); font-weight: 500; }
-.two { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: var(--s4); align-items: start; }
-.two > * { min-width: 0; }
+  /* Code */
+  pre {
+    margin: 0;
+    background: var(--code-bg);
+    border: 1px solid var(--rule);
+    border-radius: 6px;
+    padding: var(--s4);
+    overflow-x: auto;
+    font: 400 0.84rem/1.6 var(--f-mono);
+  }
+  pre .c {
+    color: var(--ink-2);
+  }
+  pre .k {
+    color: var(--teal);
+    font-weight: 500;
+  }
+  .two {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    gap: var(--s4);
+    align-items: start;
+  }
+  .two > * {
+    min-width: 0;
+  }
 
-/* Phases */
-.phases { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: var(--s4); counter-reset: ph; }
-.phases li { background: var(--sheet); border: 1px solid var(--rule); border-radius: 6px; padding: var(--s4); display: grid; gap: var(--s2); align-content: start; counter-increment: ph; }
-.phases li::before { content: "Phase " counter(ph, decimal) ; font: 600 0.72rem/1 var(--f-body); letter-spacing: 0.1em; text-transform: uppercase; color: var(--teal); }
-.phases li:first-child::before { content: "Phase 0"; }
-.phases li:nth-child(2)::before { content: "Phase 1"; }
-.phases li:nth-child(3)::before { content: "Phase 2"; }
-.phases li:nth-child(4)::before { content: "Phase 3"; }
-.phases .when { font: 500 0.82rem var(--f-mono); color: var(--ink-2); }
-.phases p { font-size: 0.9rem; color: var(--ink-2); }
+  /* Phases */
+  .phases {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: var(--s4);
+    counter-reset: ph;
+  }
+  .phases li {
+    background: var(--sheet);
+    border: 1px solid var(--rule);
+    border-radius: 6px;
+    padding: var(--s4);
+    display: grid;
+    gap: var(--s2);
+    align-content: start;
+    counter-increment: ph;
+  }
+  .phases li::before {
+    content: 'Phase ' counter(ph, decimal);
+    font: 600 0.72rem/1 var(--f-body);
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--teal);
+  }
+  .phases li:first-child::before {
+    content: 'Phase 0';
+  }
+  .phases li:nth-child(2)::before {
+    content: 'Phase 1';
+  }
+  .phases li:nth-child(3)::before {
+    content: 'Phase 2';
+  }
+  .phases li:nth-child(4)::before {
+    content: 'Phase 3';
+  }
+  .phases .when {
+    font: 500 0.82rem var(--f-mono);
+    color: var(--ink-2);
+  }
+  .phases p {
+    font-size: 0.9rem;
+    color: var(--ink-2);
+  }
 
-.callout { border-left: 4px solid var(--signal); background: var(--sheet); padding: var(--s4) var(--s5); border-radius: 0 6px 6px 0; display: grid; gap: var(--s2); }
-footer { color: var(--ink-2); font-size: 0.85rem; border-top: 1px solid var(--rule); padding-top: var(--s5); }
+  .callout {
+    border-left: 4px solid var(--signal);
+    background: var(--sheet);
+    padding: var(--s4) var(--s5);
+    border-radius: 0 6px 6px 0;
+    display: grid;
+    gap: var(--s2);
+  }
+  footer {
+    color: var(--ink-2);
+    font-size: 0.85rem;
+    border-top: 1px solid var(--rule);
+    padding-top: var(--s5);
+  }
 
-@media (max-width: 860px) {
-  .results, .phases { grid-template-columns: repeat(2, minmax(0, 1fr)); }
-  .split, .two { grid-template-columns: minmax(0, 1fr); }
-}
-@media (max-width: 520px) {
-  .results, .phases { grid-template-columns: minmax(0, 1fr); }
-  .sheet { grid-template-columns: minmax(0, 1fr); }
-  .sheet .num { place-items: center start; padding: var(--s3) var(--s5); font-size: 1.4rem; }
-  .controls li { grid-template-columns: minmax(0, 1fr); gap: 4px; }
-}
-@media (prefers-reduced-motion: reduce) { * { transition: none !important; animation: none !important; } }
+  @media (max-width: 860px) {
+    .results,
+    .phases {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+    .split,
+    .two {
+      grid-template-columns: minmax(0, 1fr);
+    }
+  }
+  @media (max-width: 520px) {
+    .results,
+    .phases {
+      grid-template-columns: minmax(0, 1fr);
+    }
+    .sheet {
+      grid-template-columns: minmax(0, 1fr);
+    }
+    .sheet .num {
+      place-items: center start;
+      padding: var(--s3) var(--s5);
+      font-size: 1.4rem;
+    }
+    .controls li {
+      grid-template-columns: minmax(0, 1fr);
+      gap: 4px;
+    }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    * {
+      transition: none !important;
+      animation: none !important;
+    }
+  }
 </style>
 
 <div class="wrap">
-
   <header class="hero">
     <div class="stripe" aria-hidden="true"></div>
     <p class="eyebrow">Engineering standard · QA platform · v1.0.0</p>
-    <h1>ACME QA Guardrails</h1>
-    <p class="lede prose">One policy and one pipeline for every Playwright + TypeScript repository. It covers code quality, framework architecture, test reliability, security and dependencies, and pull-request controls. Teams tune thresholds within fixed bounds. A small set of hard floors cannot be switched off by anyone.</p>
+    <h1>AriseQA Guardrails</h1>
+    <p class="lede prose">
+      One policy and one pipeline for every Playwright + TypeScript repository. It covers code quality, framework
+      architecture, test reliability, security and dependencies, and pull-request controls. Teams tune thresholds within
+      fixed bounds. A small set of hard floors cannot be switched off by anyone.
+    </p>
     <div class="meta">
       <span>Required check <b class="mono">guardrails / gate</b></span>
       <span>Pilot repo <b>playwright-web-api-framework</b></span>
@@ -180,18 +592,35 @@ footer { color: var(--ink-2); font-size: 0.85rem; border-top: 1px solid var(--ru
     <header>
       <p class="eyebrow">What is enforced</p>
       <h2 id="g5">The five guardrails</h2>
-      <p class="prose" style="color:var(--ink-2)">Each control is marked as a <span class="chip floor">floor</span> (always blocks, not configurable), <span class="chip conf">bounded</span> (team sets the value within limits) or <span class="chip opt">opt-in</span>.</p>
+      <p class="prose" style="color: var(--ink-2)">
+        Each control is marked as a <span class="chip floor">floor</span> (always blocks, not configurable),
+        <span class="chip conf">bounded</span> (team sets the value within limits) or
+        <span class="chip opt">opt-in</span>.
+      </p>
     </header>
     <div class="sheets">
       <article class="sheet">
         <div class="num">1</div>
         <div class="body">
           <h3>Code quality</h3>
-          <p>Every repo shares the same type-checked lint baseline and strict compiler settings. Lint runs twice: once with the repo's config, then again with an enterprise floor config that ignores <code>eslint-disable</code> comments.</p>
+          <p>
+            Every repo shares the same type-checked lint baseline and strict compiler settings. Lint runs twice: once
+            with the repo's config, then again with an enterprise floor config that ignores
+            <code>eslint-disable</code> comments.
+          </p>
           <ul class="controls">
-            <li><span>Zero TypeScript errors (<code>tsc --noEmit</code>)</span><span class="chip floor">floor</span></li>
-            <li><span>Zero ESLint errors; floored rules enforced with inline disables ignored</span><span class="chip floor">floor</span></li>
-            <li><span>Lint warnings allowed (0–50), cyclomatic complexity (10–25), unsafe-<code>any</code> strictness</span><span class="chip conf">bounded</span></li>
+            <li>
+              <span>Zero TypeScript errors (<code>tsc --noEmit</code>)</span><span class="chip floor">floor</span>
+            </li>
+            <li>
+              <span>Zero ESLint errors; floored rules enforced with inline disables ignored</span
+              ><span class="chip floor">floor</span>
+            </li>
+            <li>
+              <span
+                >Lint warnings allowed (0–50), cyclomatic complexity (10–25), unsafe-<code>any</code> strictness</span
+              ><span class="chip conf">bounded</span>
+            </li>
             <li><span>Prettier check, Conventional Commit PR titles</span><span class="chip conf">bounded</span></li>
           </ul>
           <p class="tools">ESLint 10 flat config, typescript-eslint, Prettier, commitlint, husky + lint-staged</p>
@@ -201,60 +630,138 @@ footer { color: var(--ink-2); font-size: 0.85rem; border-top: 1px solid var(--ru
         <div class="num">2</div>
         <div class="body">
           <h3>Automation framework</h3>
-          <p>The Page Object rules that used to live only in review checklists and CLAUDE.md are now lint errors, enforced by the custom <code>acme-qa</code> ESLint plugin.</p>
+          <p>
+            The Page Object rules that used to live only in review checklists and CLAUDE.md are now lint errors,
+            enforced by the custom <code>ariseqa-qa</code> ESLint plugin.
+          </p>
           <ul class="controls">
-            <li><span>Specs never use the raw <code>page</code> fixture or build locators</span><span class="chip conf">bounded</span></li>
-            <li><span>Specs import <code>test</code>/<code>expect</code> from app fixtures only</span><span class="chip conf">bounded</span></li>
-            <li><span>Locators are <code>private readonly</code>; interactions go through WebActions</span><span class="chip conf">bounded</span></li>
+            <li>
+              <span>Specs never use the raw <code>page</code> fixture or build locators</span
+              ><span class="chip conf">bounded</span>
+            </li>
+            <li>
+              <span>Specs import <code>test</code>/<code>expect</code> from app fixtures only</span
+              ><span class="chip conf">bounded</span>
+            </li>
+            <li>
+              <span>Locators are <code>private readonly</code>; interactions go through WebActions</span
+              ><span class="chip conf">bounded</span>
+            </li>
             <li><span>Apps never import from sibling apps</span><span class="chip conf">bounded</span></li>
           </ul>
-          <p class="tools">@acme/eslint-config → acme-qa plugin (5 rules, unit-tested with ESLint RuleTester)</p>
+          <p class="tools">@ariseqa/eslint-config → ariseqa plugin (5 rules, unit-tested with ESLint RuleTester)</p>
         </div>
       </article>
       <article class="sheet">
         <div class="num">3</div>
         <div class="body">
           <h3>Automated test quality</h3>
-          <p>Retrying until green and skipping indefinitely are both blocked. Flaky tests are quarantined against an owner ticket with an expiry date, and the flake rate has a budget.</p>
+          <p>
+            Retrying until green and skipping indefinitely are both blocked. Flaky tests are quarantined against an
+            owner ticket with an expiry date, and the flake rate has a budget.
+          </p>
           <ul class="controls">
-            <li><span>No <code>test.only</code>, no hard waits (<code>waitForTimeout</code>, <code>networkidle</code>), assertions required</span><span class="chip conf">bounded</span></li>
-            <li><span>Every test carries an approved tag (drives <code>--grep</code> suites)</span><span class="chip conf">bounded</span></li>
-            <li><span>Retries capped at policy (0–2), whatever the config file says</span><span class="chip conf">bounded</span></li>
-            <li><span>Quarantine needs a ticket and an expiry ≤ 60 days; ≤ 10 % of the suite</span><span class="chip conf">bounded</span></li>
-            <li><span>Flake rate (passed only on retry) within budget (0–10 %)</span><span class="chip conf">bounded</span></li>
+            <li>
+              <span
+                >No <code>test.only</code>, no hard waits (<code>waitForTimeout</code>, <code>networkidle</code>),
+                assertions required</span
+              ><span class="chip conf">bounded</span>
+            </li>
+            <li>
+              <span>Every test carries an approved tag (drives <code>--grep</code> suites)</span
+              ><span class="chip conf">bounded</span>
+            </li>
+            <li>
+              <span>Retries capped at policy (0–2), whatever the config file says</span
+              ><span class="chip conf">bounded</span>
+            </li>
+            <li>
+              <span>Quarantine needs a ticket and an expiry ≤ 60 days; ≤ 10 % of the suite</span
+              ><span class="chip conf">bounded</span>
+            </li>
+            <li>
+              <span>Flake rate (passed only on retry) within budget (0–10 %)</span
+              ><span class="chip conf">bounded</span>
+            </li>
           </ul>
-          <p class="tools">@acme/playwright-guardrails <code>withGuardrails()</code>, quarantine and flake gates over Playwright JSON reports</p>
+          <p class="tools">
+            @ariseqa/playwright-guardrails <code>withGuardrails()</code>, quarantine and flake gates over Playwright
+            JSON reports
+          </p>
         </div>
       </article>
       <article class="sheet">
         <div class="num">4</div>
         <div class="body">
           <h3>Security and dependencies</h3>
-          <p>Secrets and critical advisories always block. Other thresholds are set by the team, and every exception expires.</p>
+          <p>
+            Secrets and critical advisories always block. Other thresholds are set by the team, and every exception
+            expires.
+          </p>
           <ul class="controls">
-            <li><span>No secrets in commits (gitleaks with enterprise rules, incl. Jira/Atlassian tokens)</span><span class="chip floor">floor</span></li>
-            <li><span>No critical advisories in dependencies or runner images, and they can't be ignored</span><span class="chip floor">floor</span></li>
-            <li><span>High/moderate threshold; ignores need a reason and expire within 90 days</span><span class="chip conf">bounded</span></li>
-            <li><span>Licence allow list owned by Legal; copyleft cannot be added</span><span class="chip floor">floor</span></li>
-            <li><span>Semgrep enterprise rules (TLS off, hard-coded auth, shell injection, secret logging)</span><span class="chip conf">bounded</span></li>
-            <li><span>CodeQL, ZAP baseline (authorised hosts only), Hadolint + Trivy on images</span><span class="chip opt">opt-in</span></li>
+            <li>
+              <span>No secrets in commits (gitleaks with enterprise rules, incl. Jira/Atlassian tokens)</span
+              ><span class="chip floor">floor</span>
+            </li>
+            <li>
+              <span>No critical advisories in dependencies or runner images, and they can't be ignored</span
+              ><span class="chip floor">floor</span>
+            </li>
+            <li>
+              <span>High/moderate threshold; ignores need a reason and expire within 90 days</span
+              ><span class="chip conf">bounded</span>
+            </li>
+            <li>
+              <span>Licence allow list owned by Legal; copyleft cannot be added</span
+              ><span class="chip floor">floor</span>
+            </li>
+            <li>
+              <span>Semgrep enterprise rules (TLS off, hard-coded auth, shell injection, secret logging)</span
+              ><span class="chip conf">bounded</span>
+            </li>
+            <li>
+              <span>CodeQL, ZAP baseline (authorised hosts only), Hadolint + Trivy on images</span
+              ><span class="chip opt">opt-in</span>
+            </li>
           </ul>
-          <p class="tools">gitleaks, Semgrep CE, npm/pnpm audit, OSV-Scanner, Trivy (CycloneDX SBOM), OWASP ZAP, Hadolint</p>
+          <p class="tools">
+            gitleaks, Semgrep CE, npm/pnpm audit, OSV-Scanner, Trivy (CycloneDX SBOM), OWASP ZAP, Hadolint
+          </p>
         </div>
       </article>
       <article class="sheet">
         <div class="num">5</div>
         <div class="body">
           <h3>CI/CD and pull requests</h3>
-          <p>A 20-line caller in each repo runs the central pipeline, pinned by commit SHA. Branch rules are version-controlled and require one check.</p>
+          <p>
+            A 20-line caller in each repo runs the central pipeline, pinned by commit SHA. Branch rules are
+            version-controlled and require one check.
+          </p>
           <ul class="controls">
-            <li><span>1 approval + CODEOWNER review, last-push approval, stale reviews dismissed</span><span class="chip floor">floor</span></li>
-            <li><span>Signed commits, linear history, no force-push or deletion on main</span><span class="chip floor">floor</span></li>
-            <li><span>Third-party actions pinned to commit SHAs (warn → block)</span><span class="chip conf">bounded</span></li>
-            <li><span>Org-level required workflow as a backstop if a caller is deleted</span><span class="chip opt">opt-in</span></li>
-            <li><span>Dependabot, OpenSSF Scorecard, cosign signing + build provenance</span><span class="chip opt">opt-in</span></li>
+            <li>
+              <span>1 approval + CODEOWNER review, last-push approval, stale reviews dismissed</span
+              ><span class="chip floor">floor</span>
+            </li>
+            <li>
+              <span>Signed commits, linear history, no force-push or deletion on main</span
+              ><span class="chip floor">floor</span>
+            </li>
+            <li>
+              <span>Third-party actions pinned to commit SHAs (warn → block)</span
+              ><span class="chip conf">bounded</span>
+            </li>
+            <li>
+              <span>Org-level required workflow as a backstop if a caller is deleted</span
+              ><span class="chip opt">opt-in</span>
+            </li>
+            <li>
+              <span>Dependabot, OpenSSF Scorecard, cosign signing + build provenance</span
+              ><span class="chip opt">opt-in</span>
+            </li>
           </ul>
-          <p class="tools">Reusable workflow_call, rulesets as code (<code>governance/rulesets</code>), CODEOWNERS, PR template</p>
+          <p class="tools">
+            Reusable workflow_call, rulesets as code (<code>governance/rulesets</code>), CODEOWNERS, PR template
+          </p>
         </div>
       </article>
     </div>
@@ -264,21 +771,42 @@ footer { color: var(--ink-2); font-size: 0.85rem; border-top: 1px solid var(--ru
     <header>
       <p class="eyebrow">How a pull request is gated</p>
       <h2 id="flow">Seven jobs, one required check</h2>
-      <p class="prose" style="color:var(--ink-2)">The policy job resolves the team file against the enterprise defaults and fails on any out-of-bounds value or floor override. Every other job reads its thresholds from that output. The gate fails if a floor job doesn't succeed or any gate fails.</p>
+      <p class="prose" style="color: var(--ink-2)">
+        The policy job resolves the team file against the enterprise defaults and fails on any out-of-bounds value or
+        floor override. Every other job reads its thresholds from that output. The gate fails if a floor job doesn't
+        succeed or any gate fails.
+      </p>
     </header>
     <div class="pipeline">
       <div class="lanes" role="list">
-        <div class="node floor" role="listitem"><strong>policy</strong><small>validate guardrails.config.yml · bounds · floors</small></div>
-        <div class="node floor" role="listitem"><strong>secrets</strong><small>gitleaks over the PR's commits</small></div>
-        <div class="node floor" role="listitem"><strong>quality</strong><small>tsc · eslint (team) · eslint (floor) · prettier · PR title</small></div>
-        <div class="node" role="listitem"><strong>tests</strong><small>quarantine hygiene · suite · flake budget</small></div>
-        <div class="node floor" role="listitem"><strong>dependencies</strong><small>audit gate · licences · OSV · SBOM</small></div>
+        <div class="node floor" role="listitem">
+          <strong>policy</strong><small>validate guardrails.config.yml · bounds · floors</small>
+        </div>
+        <div class="node floor" role="listitem">
+          <strong>secrets</strong><small>gitleaks over the PR's commits</small>
+        </div>
+        <div class="node floor" role="listitem">
+          <strong>quality</strong><small>tsc · eslint (team) · eslint (floor) · prettier · PR title</small>
+        </div>
+        <div class="node" role="listitem">
+          <strong>tests</strong><small>quarantine hygiene · suite · flake budget</small>
+        </div>
+        <div class="node floor" role="listitem">
+          <strong>dependencies</strong><small>audit gate · licences · OSV · SBOM</small>
+        </div>
         <div class="node" role="listitem"><strong>sast</strong><small>Semgrep · CodeQL (opt-in)</small></div>
         <div class="node" role="listitem"><strong>supply-chain</strong><small>actions pinned to SHAs</small></div>
-        <div class="node gate" role="listitem"><strong>gate</strong><small>the single required status check</small></div>
-        <div class="flow" aria-hidden="true"><span>caller → acme-qa-guardrails/.github/workflows/guardrails.yml@sha</span><span>→ branch ruleset</span></div>
+        <div class="node gate" role="listitem">
+          <strong>gate</strong><small>the single required status check</small>
+        </div>
+        <div class="flow" aria-hidden="true">
+          <span>caller → qa-guardrails/.github/workflows/guardrails.yml@sha</span><span>→ branch ruleset</span>
+        </div>
       </div>
-      <div class="legend"><span class="chip floor">floor job</span> must succeed outright <span class="chip opt">other</span> may be skipped by policy, never fail</div>
+      <div class="legend">
+        <span class="chip floor">floor job</span> must succeed outright <span class="chip opt">other</span> may be
+        skipped by policy, never fail
+      </div>
     </div>
   </section>
 
@@ -290,7 +818,10 @@ footer { color: var(--ink-2); font-size: 0.85rem; border-top: 1px solid var(--ru
     <div class="split">
       <div class="panel floor">
         <h3>Hard floors</h3>
-        <p style="color:var(--ink-2)">These are literals in the policy schema. Setting one in a team file, even to its default value, fails the policy job with a pointer to the exception process.</p>
+        <p style="color: var(--ink-2)">
+          These are literals in the policy schema. Setting one in a team file, even to its default value, fails the
+          policy job with a pointer to the exception process.
+        </p>
         <ul>
           <li>Zero type errors and zero lint errors</li>
           <li>Secret scanning on every PR</li>
@@ -301,17 +832,50 @@ footer { color: var(--ink-2); font-size: 0.85rem; border-top: 1px solid var(--ru
       </div>
       <div class="panel conf">
         <h3>Bounded team settings</h3>
-        <p style="color:var(--ink-2)">These live in <code>guardrails.config.yml</code> with CODEOWNERS review. The schema is strict, so a typo fails loudly instead of silently disabling a gate.</p>
-        <div class="table-wrap" style="border:0">
+        <p style="color: var(--ink-2)">
+          These live in <code>guardrails.config.yml</code> with CODEOWNERS review. The schema is strict, so a typo fails
+          loudly instead of silently disabling a gate.
+        </p>
+        <div class="table-wrap" style="border: 0">
           <table>
-            <thead><tr><th>Setting</th><th>Default</th><th>Range</th></tr></thead>
+            <thead>
+              <tr>
+                <th>Setting</th>
+                <th>Default</th>
+                <th>Range</th>
+              </tr>
+            </thead>
             <tbody>
-              <tr><td>Max retries</td><td class="num">2</td><td class="num">0–2</td></tr>
-              <tr><td>Flake budget</td><td class="num">2 %</td><td class="num">0–10 %</td></tr>
-              <tr><td>Lint warnings</td><td class="num">0</td><td class="num">0–50</td></tr>
-              <tr><td>Quarantine expiry</td><td class="num">30 d</td><td class="num">1–60 d</td></tr>
-              <tr><td>Vuln. threshold</td><td class="num">high</td><td class="num">crit…low</td></tr>
-              <tr><td>Ignore expiry</td><td class="num">—</td><td class="num">≤ 90 d</td></tr>
+              <tr>
+                <td>Max retries</td>
+                <td class="num">2</td>
+                <td class="num">0–2</td>
+              </tr>
+              <tr>
+                <td>Flake budget</td>
+                <td class="num">2 %</td>
+                <td class="num">0–10 %</td>
+              </tr>
+              <tr>
+                <td>Lint warnings</td>
+                <td class="num">0</td>
+                <td class="num">0–50</td>
+              </tr>
+              <tr>
+                <td>Quarantine expiry</td>
+                <td class="num">30 d</td>
+                <td class="num">1–60 d</td>
+              </tr>
+              <tr>
+                <td>Vuln. threshold</td>
+                <td class="num">high</td>
+                <td class="num">crit…low</td>
+              </tr>
+              <tr>
+                <td>Ignore expiry</td>
+                <td class="num">—</td>
+                <td class="num">≤ 90 d</td>
+              </tr>
             </tbody>
           </table>
         </div>
@@ -323,26 +887,92 @@ footer { color: var(--ink-2); font-size: 0.85rem; border-top: 1px solid var(--ru
     <header>
       <p class="eyebrow">Pilot · playwright-web-api-framework · 4 apps, 86 tests</p>
       <h2 id="pilot">What the guardrails found on day one</h2>
-      <p class="prose" style="color:var(--ink-2)">These results come from a local run against the real repository on branch <code>chore/qa-guardrails-onboarding</code>. GitHub Actions has not run them yet, because the packages are not published.</p>
+      <p class="prose" style="color: var(--ink-2)">
+        These results come from a local run against the real repository on branch
+        <code>chore/qa-guardrails-onboarding</code>. GitHub Actions has not run them yet, because the packages are not
+        published.
+      </p>
     </header>
     <div class="results">
-      <div class="stat"><span class="eyebrow">Lint errors</span><span class="big"><span class="from">123</span><span class="arrow">→</span><span class="to">0</span></span><small>27 were real POM violations, all in the documented anti-pattern spec. 52 were noise; the rule was switched off centrally.</small></div>
-      <div class="stat"><span class="eyebrow">High advisories</span><span class="big"><span class="from">13</span><span class="arrow">→</span><span class="to">0</span></span><small>axios (a runtime dependency), follow-redirects and brace-expansion, fixed with a non-breaking update to axios 1.20.0.</small></div>
-      <div class="stat"><span class="eyebrow">Flake rate</span><span class="big"><span class="to">0 %</span></span><small>61/61 API tests through the wrapped config; JSON report fed to the flake gate (budget 3 %).</small></div>
-      <div class="stat"><span class="eyebrow">Secrets in history</span><span class="big"><span class="to">0</span></span><small>8 commits scanned. The local <code>.env</code> Jira token is detected and stays gitignored.</small></div>
+      <div class="stat">
+        <span class="eyebrow">Lint errors</span
+        ><span class="big"><span class="from">123</span><span class="arrow">→</span><span class="to">0</span></span
+        ><small
+          >27 were real POM violations, all in the documented anti-pattern spec. 52 were noise; the rule was switched
+          off centrally.</small
+        >
+      </div>
+      <div class="stat">
+        <span class="eyebrow">High advisories</span
+        ><span class="big"><span class="from">13</span><span class="arrow">→</span><span class="to">0</span></span
+        ><small
+          >axios (a runtime dependency), follow-redirects and brace-expansion, fixed with a non-breaking update to axios
+          1.20.0.</small
+        >
+      </div>
+      <div class="stat">
+        <span class="eyebrow">Flake rate</span><span class="big"><span class="to">0 %</span></span
+        ><small>61/61 API tests through the wrapped config; JSON report fed to the flake gate (budget 3 %).</small>
+      </div>
+      <div class="stat">
+        <span class="eyebrow">Secrets in history</span><span class="big"><span class="to">0</span></span
+        ><small>8 commits scanned. The local <code>.env</code> Jira token is detected and stays gitignored.</small>
+      </div>
     </div>
     <div class="table-wrap">
       <table>
-        <thead><tr><th>Finding</th><th>Guardrail</th><th>Resolution</th></tr></thead>
+        <thead>
+          <tr>
+            <th>Finding</th>
+            <th>Guardrail</th>
+            <th>Resolution</th>
+          </tr>
+        </thead>
         <tbody>
-          <tr><td>Raw <code>page</code> + inline locators in <code>checkout_validation.spec.ts</code></td><td>Framework</td><td>Kept as the documented anti-pattern, excluded from lint explicitly, skip now names SCRUM-1</td></tr>
-          <tr><td>Locator built inside public <code>clickQuickLaunchLink</code></td><td>Framework</td><td>Moved to a private factory method</td></tr>
-          <tr><td>Untagged data-driven checkout tests (SCRUM-1/2/5/6) never matched <code>--grep @regression</code></td><td>Test quality</td><td>Tagged via <code>{ tag }</code>; titles unchanged so the Jira Implemented Steps still match</td></tr>
-          <tr><td><code>waitForLoadState('networkidle')</code> in WebActions</td><td>Test quality</td><td>Switched to <code>'load'</code> (method currently unused)</td></tr>
-          <tr><td>Untyped Jira/axios responses (10 unsafe-<code>any</code>)</td><td>Code quality</td><td>Typed response generics</td></tr>
-          <tr><td>Errors re-thrown without <code>cause</code>; awaited non-promises</td><td>Code quality</td><td>Fixed</td></tr>
-          <tr><td>The guardrails' own lint plugin (eslint-plugin-sonarjs) is LGPL-3.0</td><td>Security</td><td>Dropped centrally for core <code>complexity</code>. The licence gate caught the platform's own tooling</td></tr>
-          <tr><td>Request headers (incl. API keys) logged at debug in <code>ApiClient</code></td><td>Security</td><td><span class="chip opt">open</span> flagged by Semgrep rule <code>acme.request-headers-logged</code></td></tr>
+          <tr>
+            <td>Raw <code>page</code> + inline locators in <code>checkout_validation.spec.ts</code></td>
+            <td>Framework</td>
+            <td>Kept as the documented anti-pattern, excluded from lint explicitly, skip now names SCRUM-1</td>
+          </tr>
+          <tr>
+            <td>Locator built inside public <code>clickQuickLaunchLink</code></td>
+            <td>Framework</td>
+            <td>Moved to a private factory method</td>
+          </tr>
+          <tr>
+            <td>Untagged data-driven checkout tests (SCRUM-1/2/5/6) never matched <code>--grep @regression</code></td>
+            <td>Test quality</td>
+            <td>Tagged via <code>{ tag }</code>; titles unchanged so the Jira Implemented Steps still match</td>
+          </tr>
+          <tr>
+            <td><code>waitForLoadState('networkidle')</code> in WebActions</td>
+            <td>Test quality</td>
+            <td>Switched to <code>'load'</code> (method currently unused)</td>
+          </tr>
+          <tr>
+            <td>Untyped Jira/axios responses (10 unsafe-<code>any</code>)</td>
+            <td>Code quality</td>
+            <td>Typed response generics</td>
+          </tr>
+          <tr>
+            <td>Errors re-thrown without <code>cause</code>; awaited non-promises</td>
+            <td>Code quality</td>
+            <td>Fixed</td>
+          </tr>
+          <tr>
+            <td>The guardrails' own lint plugin (eslint-plugin-sonarjs) is LGPL-3.0</td>
+            <td>Security</td>
+            <td>
+              Dropped centrally for core <code>complexity</code>. The licence gate caught the platform's own tooling
+            </td>
+          </tr>
+          <tr>
+            <td>Request headers (incl. API keys) logged at debug in <code>ApiClient</code></td>
+            <td>Security</td>
+            <td>
+              <span class="chip opt">open</span> flagged by Semgrep rule <code>ariseqa.request-headers-logged</code>
+            </td>
+          </tr>
         </tbody>
       </table>
     </div>
@@ -352,13 +982,16 @@ footer { color: var(--ink-2); font-size: 0.85rem; border-top: 1px solid var(--ru
     <header>
       <p class="eyebrow">For teams</p>
       <h2 id="onboard">Onboarding a repository</h2>
-      <p class="prose" style="color:var(--ink-2)">It takes about 30 minutes: copy <code>templates/consumer/</code>, set the test command and team name, install three packages, wrap the Playwright config, then run <code>eslint --fix</code> and fix what's left.</p>
+      <p class="prose" style="color: var(--ink-2)">
+        It takes about 30 minutes: copy <code>templates/consumer/</code>, set the test command and team name, install
+        three packages, wrap the Playwright config, then run <code>eslint --fix</code> and fix what's left.
+      </p>
     </header>
     <div class="two">
       <pre><span class="c"># .github/workflows/guardrails.yml</span>
 <span class="k">jobs</span>:
   <span class="k">guardrails</span>:
-    <span class="k">uses</span>: acme-org/acme-qa-guardrails/.github/workflows/guardrails.yml@&lt;sha&gt;
+    <span class="k">uses</span>: ariseqa/qa-guardrails/.github/workflows/guardrails.yml@&lt;sha&gt;
     <span class="k">with</span>:
       <span class="k">guardrails-ref</span>: v1
       <span class="k">test-command</span>: npm run test:smoke
@@ -376,7 +1009,11 @@ footer { color: var(--ink-2); font-size: 0.85rem; border-top: 1px solid var(--ru
     </div>
     <div class="callout">
       <h3>Parking a flaky test</h3>
-      <p>Use <code>quarantine('SCRUM-12', '2026-11-30', 'race on cart badge')</code> in the test's details. The test leaves PR runs and runs nightly instead. When the expiry passes, the PR fails until someone fixes the test or deletes it.</p>
+      <p>
+        Use <code>quarantine('SCRUM-12', '2026-11-30', 'race on cart badge')</code> in the test's details. The test
+        leaves PR runs and runs nightly instead. When the expiry passes, the PR fails until someone fixes the test or
+        deletes it.
+      </p>
     </div>
   </section>
 
@@ -384,19 +1021,80 @@ footer { color: var(--ink-2); font-size: 0.85rem; border-top: 1px solid var(--ru
     <header>
       <p class="eyebrow">Audit evidence</p>
       <h2 id="audit">Compliance mapping (excerpt)</h2>
-      <p class="prose" style="color:var(--ink-2)">The full 18-control matrix is in <code>docs/controls-matrix.md</code>. These mappings are a starting point for GRC to confirm, not a certification claim.</p>
+      <p class="prose" style="color: var(--ink-2)">
+        The full 18-control matrix is in <code>docs/controls-matrix.md</code>. These mappings are a starting point for
+        GRC to confirm, not a certification claim.
+      </p>
     </header>
     <div class="table-wrap">
       <table>
-        <thead><tr><th>Control</th><th>ASVS 4.0.3</th><th>SOC 2</th><th>ISO 27001:2022</th><th>SLSA 1.0</th><th>Evidence</th></tr></thead>
+        <thead>
+          <tr>
+            <th>Control</th>
+            <th>ASVS 4.0.3</th>
+            <th>SOC 2</th>
+            <th>ISO 27001:2022</th>
+            <th>SLSA 1.0</th>
+            <th>Evidence</th>
+          </tr>
+        </thead>
         <tbody>
-          <tr><td>Owner review, no self-approval</td><td>V1.1.2</td><td>CC8.1</td><td>A.8.32</td><td>Source track</td><td>Ruleset JSON, PR reviews</td></tr>
-          <tr><td>Secrets never committed</td><td>V2.10.4</td><td>CC6.1</td><td>A.8.12, A.5.17</td><td>—</td><td><code>secrets</code> job, SARIF</td></tr>
-          <tr><td>Vulnerable dependencies blocked</td><td>V14.2.1</td><td>CC7.1</td><td>A.8.8</td><td>—</td><td>Audit summary, <code>audit.json</code></td></tr>
-          <tr><td>SBOM per build</td><td>V14.2.5</td><td>CC7.1</td><td>A.5.9, A.8.8</td><td>Provenance</td><td>CycloneDX artefacts</td></tr>
-          <tr><td>Pinned, verified build inputs; signed outputs</td><td>V14.2.4</td><td>CC8.1</td><td>A.8.30</td><td>Build L2</td><td>Attestations, Rekor</td></tr>
-          <tr><td>Least-privilege CI tokens</td><td>V1.4</td><td>CC6.3</td><td>A.8.2</td><td>—</td><td>Workflow source, Scorecard</td></tr>
-          <tr><td>Time-boxed, reviewed exceptions</td><td>—</td><td>CC3.4</td><td>A.5.36</td><td>—</td><td><code>guardrails.config.yml</code> history</td></tr>
+          <tr>
+            <td>Owner review, no self-approval</td>
+            <td>V1.1.2</td>
+            <td>CC8.1</td>
+            <td>A.8.32</td>
+            <td>Source track</td>
+            <td>Ruleset JSON, PR reviews</td>
+          </tr>
+          <tr>
+            <td>Secrets never committed</td>
+            <td>V2.10.4</td>
+            <td>CC6.1</td>
+            <td>A.8.12, A.5.17</td>
+            <td>—</td>
+            <td><code>secrets</code> job, SARIF</td>
+          </tr>
+          <tr>
+            <td>Vulnerable dependencies blocked</td>
+            <td>V14.2.1</td>
+            <td>CC7.1</td>
+            <td>A.8.8</td>
+            <td>—</td>
+            <td>Audit summary, <code>audit.json</code></td>
+          </tr>
+          <tr>
+            <td>SBOM per build</td>
+            <td>V14.2.5</td>
+            <td>CC7.1</td>
+            <td>A.5.9, A.8.8</td>
+            <td>Provenance</td>
+            <td>CycloneDX artefacts</td>
+          </tr>
+          <tr>
+            <td>Pinned, verified build inputs; signed outputs</td>
+            <td>V14.2.4</td>
+            <td>CC8.1</td>
+            <td>A.8.30</td>
+            <td>Build L2</td>
+            <td>Attestations, Rekor</td>
+          </tr>
+          <tr>
+            <td>Least-privilege CI tokens</td>
+            <td>V1.4</td>
+            <td>CC6.3</td>
+            <td>A.8.2</td>
+            <td>—</td>
+            <td>Workflow source, Scorecard</td>
+          </tr>
+          <tr>
+            <td>Time-boxed, reviewed exceptions</td>
+            <td>—</td>
+            <td>CC3.4</td>
+            <td>A.5.36</td>
+            <td>—</td>
+            <td><code>guardrails.config.yml</code> history</td>
+          </tr>
         </tbody>
       </table>
     </div>
@@ -408,20 +1106,66 @@ footer { color: var(--ink-2); font-size: 0.85rem; border-top: 1px solid var(--ru
       <h2 id="rollout">From pilot to org-wide enforcement</h2>
     </header>
     <ol class="phases">
-      <li><h3>Platform setup</h3><span class="when">~1 day</span><p>Push the repo, set up the protected <code>release</code> environment, tag v1.0.0 to publish the <code>@acme/*</code> packages.</p></li>
-      <li><h3>Pilot, warn mode</h3><span class="when">2 weeks · 1–2 repos</span><p>Gate runs but isn't required yet. Measure pass rate, duration and false positives, then tune the defaults.</p></li>
-      <li><h3>Enforce by wave</h3><span class="when">4–6 weeks · 5–10 repos per wave</span><p>Require <code>guardrails / gate</code>. Legacy repos start with bounded leniency and a dated plan to tighten.</p></li>
-      <li><h3>Org backstop</h3><span class="when">after wave 2</span><p>Activate the required-workflow ruleset for <code>guardrails=enforced</code> repos and move action pinning from warn to block.</p></li>
+      <li>
+        <h3>Platform setup</h3>
+        <span class="when">~1 day</span>
+        <p>
+          Push the repo, set up the protected <code>release</code> environment, tag v1.0.0 to publish the
+          <code>@ariseqa/*</code> packages.
+        </p>
+      </li>
+      <li>
+        <h3>Pilot, warn mode</h3>
+        <span class="when">2 weeks · 1–2 repos</span>
+        <p>
+          Gate runs but isn't required yet. Measure pass rate, duration and false positives, then tune the defaults.
+        </p>
+      </li>
+      <li>
+        <h3>Enforce by wave</h3>
+        <span class="when">4–6 weeks · 5–10 repos per wave</span>
+        <p>
+          Require <code>guardrails / gate</code>. Legacy repos start with bounded leniency and a dated plan to tighten.
+        </p>
+      </li>
+      <li>
+        <h3>Org backstop</h3>
+        <span class="when">after wave 2</span>
+        <p>
+          Activate the required-workflow ruleset for <code>guardrails=enforced</code> repos and move action pinning from
+          warn to block.
+        </p>
+      </li>
     </ol>
     <div class="table-wrap">
       <table>
-        <thead><tr><th>KPI for leadership</th><th>Target</th></tr></thead>
+        <thead>
+          <tr>
+            <th>KPI for leadership</th>
+            <th>Target</th>
+          </tr>
+        </thead>
         <tbody>
-          <tr><td>Repos onboarded / enforced</td><td>100 % of Playwright repos by end of phase 3</td></tr>
-          <tr><td>Gate duration without tests (p50 / p95)</td><td class="num">≤ 10 / 15 min</td></tr>
-          <tr><td>Flake rate (org median)</td><td class="num">≤ 2 %</td></tr>
-          <tr><td>Open critical advisories</td><td class="num">0</td></tr>
-          <tr><td>Exceptions past expiry</td><td class="num">0</td></tr>
+          <tr>
+            <td>Repos onboarded / enforced</td>
+            <td>100 % of Playwright repos by end of phase 3</td>
+          </tr>
+          <tr>
+            <td>Gate duration without tests (p50 / p95)</td>
+            <td class="num">≤ 10 / 15 min</td>
+          </tr>
+          <tr>
+            <td>Flake rate (org median)</td>
+            <td class="num">≤ 2 %</td>
+          </tr>
+          <tr>
+            <td>Open critical advisories</td>
+            <td class="num">0</td>
+          </tr>
+          <tr>
+            <td>Exceptions past expiry</td>
+            <td class="num">0</td>
+          </tr>
         </tbody>
       </table>
     </div>
@@ -434,20 +1178,54 @@ footer { color: var(--ink-2); font-size: 0.85rem; border-top: 1px solid var(--ru
     </header>
     <div class="table-wrap">
       <table>
-        <thead><tr><th>Item</th><th>Owner</th><th>Status</th></tr></thead>
+        <thead>
+          <tr>
+            <th>Item</th>
+            <th>Owner</th>
+            <th>Status</th>
+          </tr>
+        </thead>
         <tbody>
-          <tr><td>Replace the <code>acme-org</code> / <code>@acme</code> placeholders with the real org and npm scope</td><td>QA platform</td><td><span class="chip bad">blocking</span></td></tr>
-          <tr><td>Publish v1.0.0 to GitHub Packages; then the pilot refreshes its lockfile (<code>npm install</code>)</td><td>QA platform</td><td><span class="chip bad">blocking</span></td></tr>
-          <tr><td>Confirm the licence allow list and the <code>buffers</code> exception</td><td>Legal</td><td><span class="chip opt">review</span></td></tr>
-          <tr><td>Redact headers in <code>ApiClient</code> debug logging</td><td>Pilot team</td><td><span class="chip opt">follow-up</span></td></tr>
-          <tr><td>One-off Prettier commit in the pilot, then enable <code>formatCheck</code></td><td>Pilot team</td><td><span class="chip opt">follow-up</span></td></tr>
-          <tr><td>Semgrep rules validated only by review, not yet run with the Semgrep binary</td><td>AppSec</td><td><span class="chip opt">verify in CI</span></td></tr>
+          <tr>
+            <td>
+              Create the <code>ariseqa/qa-guardrails</code> repo and the <code>@ariseqa/qa-platform</code>,
+              <code>@ariseqa/appsec</code> and <code>@ariseqa/platform-leads</code> teams used in CODEOWNERS
+            </td>
+            <td>QA platform</td>
+            <td><span class="chip bad">blocking</span></td>
+          </tr>
+          <tr>
+            <td>Publish v1.0.0 to GitHub Packages; then the pilot refreshes its lockfile (<code>npm install</code>)</td>
+            <td>QA platform</td>
+            <td><span class="chip bad">blocking</span></td>
+          </tr>
+          <tr>
+            <td>Confirm the licence allow list and the <code>buffers</code> exception</td>
+            <td>Legal</td>
+            <td><span class="chip opt">review</span></td>
+          </tr>
+          <tr>
+            <td>Redact headers in <code>ApiClient</code> debug logging</td>
+            <td>Pilot team</td>
+            <td><span class="chip opt">follow-up</span></td>
+          </tr>
+          <tr>
+            <td>One-off Prettier commit in the pilot, then enable <code>formatCheck</code></td>
+            <td>Pilot team</td>
+            <td><span class="chip opt">follow-up</span></td>
+          </tr>
+          <tr>
+            <td>Semgrep rules validated only by review, not yet run with the Semgrep binary</td>
+            <td>AppSec</td>
+            <td><span class="chip opt">verify in CI</span></td>
+          </tr>
         </tbody>
       </table>
     </div>
   </section>
 
   <footer>
-    Source of truth: <code>acme-qa-guardrails</code> (policy defaults in <code>packages/guardrails/defaults.yml</code>, ADRs in <code>docs/adr/</code>). Questions go to the QA platform team.
+    Source of truth: <code>ariseqa/qa-guardrails</code> (policy defaults in <code>packages/guardrails/defaults.yml</code>, ADRs
+    in <code>docs/adr/</code>). Questions go to the QA platform team.
   </footer>
 </div>

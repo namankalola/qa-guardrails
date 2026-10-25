@@ -98,7 +98,7 @@ test('licenses: walks npm nested and pnpm store layouts', () => {
     version: '1.0.0',
     licenses: [{ type: 'BSD-3-Clause' }],
   });
-  pkg(path.join(nm, '@acme', 'internal'), { name: '@acme/internal', version: '1.0.0', license: 'UNLICENSED' });
+  pkg(path.join(nm, '@ariseqa', 'internal'), { name: '@ariseqa/internal', version: '1.0.0', license: 'UNLICENSED' });
 
   const packages = collectPackages(nm);
   assert.equal(packages.length, 5);
@@ -217,10 +217,10 @@ test('pinned-actions: flags tags/branches, accepts SHAs, local and trusted owner
       '      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0',
       '      - uses: ./.github/actions/local',
       '      - uses: docker://alpine:3',
-      '    uses: acme-org/acme-qa-guardrails/.github/workflows/guardrails.yml@v1',
+      '    uses: ariseqa/qa-guardrails/.github/workflows/guardrails.yml@v1',
     ].join('\n'),
   );
-  const findings = findUnpinned([dir], ['acme-org']);
+  const findings = findUnpinned([dir], ['ariseqa']);
   assert.deepEqual(
     findings.map((f) => f.ref),
     ['actions/checkout@v7', 'docker://alpine:3'],

@@ -1,5 +1,5 @@
 {
-  "name": "@acme/commitlint-config",
+  "name": "@ariseqa/commitlint-config",
   "version": "1.0.0",
   "description": "Shared commitlint config (Conventional Commits)",
   "type": "module",
@@ -15,7 +15,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/acme-org/acme-qa-guardrails.git",
+    "url": "git+https://github.com/ariseqa/qa-guardrails.git",
     "directory": "packages/commitlint-config"
   },
   "publishConfig": {

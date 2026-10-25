@@ -41,7 +41,7 @@ importers:
 
   packages/eslint-config:
     dependencies:
-      '@acme/guardrails':
+      '@ariseqa/guardrails':
         specifier: workspace:^
         version: link:../guardrails
       '@eslint/js':

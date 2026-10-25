@@ -4,7 +4,7 @@
 #
 #   jobs:
 #     guardrails:
-#       uses: acme-org/acme-qa-guardrails/.github/workflows/guardrails.yml@v1
+#       uses: ariseqa/qa-guardrails/.github/workflows/guardrails.yml@v1
 #       with:
 #         test-command: npm run test:smoke
 #
@@ -15,7 +15,7 @@ on:
   workflow_call:
     inputs:
       guardrails-ref:
-        description: Ref of acme-qa-guardrails whose tooling and floors apply. Keep in step with the @ref in `uses:`.
+        description: Ref of qa-guardrails whose tooling and floors apply. Keep in step with the @ref in `uses:`.
         type: string
         default: v1
       node-version:
@@ -44,7 +44,7 @@ on:
         default: 30
     secrets:
       guardrails-token:
-        description: Token able to read acme-org/acme-qa-guardrails (only needed while that repository is private)
+        description: Token able to read ariseqa/qa-guardrails (only needed while that repository is private)
         required: false
       test-env:
         description: dotenv-formatted secrets written to .env for the test job only
@@ -53,7 +53,7 @@ on:
 permissions: {}
 
 env:
-  GUARDRAILS_REPOSITORY: acme-org/acme-qa-guardrails
+  GUARDRAILS_REPOSITORY: ariseqa/qa-guardrails
   FORCE_COLOR: '1'
 
 jobs:
@@ -424,7 +424,7 @@ jobs:
         with:
           node-version: ${{ inputs.node-version }}
       - name: Third-party actions pinned to commit SHAs
-        run: ${{ steps.tools.outputs.cli }} pinned-actions --trusted-owner acme-org
+        run: ${{ steps.tools.outputs.cli }} pinned-actions --trusted-owner ariseqa
 
   # The one required status check. Fails if any gate failed, or if a floor job did not succeed.
   gate:

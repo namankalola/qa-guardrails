@@ -20,7 +20,7 @@ concurrency:
 
 jobs:
   guardrails:
-    uses: acme-org/acme-qa-guardrails/.github/workflows/guardrails.yml@v1
+    uses: ariseqa/qa-guardrails/.github/workflows/guardrails.yml@v1
     with:
       guardrails-ref: v1
       test-command: npm run test:smoke

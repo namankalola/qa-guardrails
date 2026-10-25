@@ -2,7 +2,7 @@
 
 Put only the values that differ from [`defaults.yml`](../packages/guardrails/defaults.yml) in
 `guardrails.config.yml` at the repo root. CI validates the file on every PR, and so does
-`npx acme-guardrails validate` locally.
+`npx ariseqa-guardrails validate` locally.
 
 ## What teams can change
 

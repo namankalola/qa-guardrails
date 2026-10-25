@@ -1,5 +1,5 @@
 {
-  "name": "acme-guardrails-default-branch",
+  "name": "ariseqa-guardrails-default-branch",
   "target": "branch",
   "enforcement": "active",
   "conditions": {

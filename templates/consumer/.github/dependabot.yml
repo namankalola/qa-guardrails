@@ -1,6 +1,6 @@
 version: 2
 registries:
-  acme-github-packages:
+  ariseqa-github-packages:
     type: npm-registry
     url: https://npm.pkg.github.com
     token: ${{ secrets.DEPENDABOT_PACKAGES_TOKEN }}
@@ -12,11 +12,11 @@ updates:
       actions: { patterns: ['*'] }
   - package-ecosystem: npm
     directory: /
-    registries: [acme-github-packages]
+    registries: [ariseqa-github-packages]
     schedule: { interval: weekly }
     open-pull-requests-limit: 10
     groups:
-      acme-guardrails: { patterns: ['@acme/*'] }
+      ariseqa-guardrails: { patterns: ['@ariseqa/*'] }
       playwright: { patterns: ['@playwright/*', 'allure-*'] }
       lint-tooling:
         {

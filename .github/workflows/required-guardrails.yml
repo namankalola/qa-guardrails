@@ -16,7 +16,7 @@ permissions:
 
 jobs:
   guardrails:
-    if: github.repository != 'acme-org/acme-qa-guardrails'
-    uses: acme-org/acme-qa-guardrails/.github/workflows/guardrails.yml@v1
+    if: github.repository != 'ariseqa/qa-guardrails'
+    uses: ariseqa/qa-guardrails/.github/workflows/guardrails.yml@v1
     with:
       guardrails-ref: v1

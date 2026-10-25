@@ -1,5 +1,5 @@
 {
-  "name": "@acme/playwright-guardrails",
+  "name": "@ariseqa/playwright-guardrails",
   "version": "1.0.0",
   "description": "Playwright config wrapper enforcing retry caps, forbidOnly, quarantine exclusion and gate reports",
   "main": "index.cjs",
@@ -22,7 +22,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/acme-org/acme-qa-guardrails.git",
+    "url": "git+https://github.com/ariseqa/qa-guardrails.git",
     "directory": "packages/playwright-guardrails"
   },
   "publishConfig": {

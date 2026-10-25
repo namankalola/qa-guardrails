@@ -1,7 +1,7 @@
 # Security policy
 
 Report vulnerabilities in the guardrails tooling privately via **GitHub Security Advisories**
-on this repository, or to `appsec@acme.example`. Do not open a public issue.
+on this repository, or to `appsec@ariseqa.example`. Do not open a public issue.
 
 - Acknowledgement within 2 business days, triage within 5.
 - A compromised guardrail is treated as a supply-chain incident: consumers pin

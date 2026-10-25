@@ -1,7 +1,7 @@
 # Every change to the guardrails needs QA platform review; floors and security
 # tooling also need AppSec. Governance changes need both plus a platform lead.
-*                       @acme-org/qa-platform
-/packages/guardrails/   @acme-org/qa-platform @acme-org/appsec
-/security/              @acme-org/appsec
-/.github/workflows/     @acme-org/qa-platform @acme-org/appsec
-/governance/            @acme-org/qa-platform @acme-org/appsec @acme-org/platform-leads
+*                       @ariseqa/qa-platform
+/packages/guardrails/   @ariseqa/qa-platform @ariseqa/appsec
+/security/              @ariseqa/appsec
+/.github/workflows/     @ariseqa/qa-platform @ariseqa/appsec
+/governance/            @ariseqa/qa-platform @ariseqa/appsec @ariseqa/platform-leads

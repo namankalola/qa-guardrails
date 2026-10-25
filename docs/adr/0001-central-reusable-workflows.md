@@ -10,7 +10,7 @@ place. Pure org-level required workflows can't run repo-specific tests.
 ## Decision
 
 - One reusable `workflow_call` pipeline in this repo. Consumers keep a ~20-line caller pinned by SHA.
-- Shared config as versioned npm packages (`@acme/eslint-config`, `@acme/playwright-guardrails`, ...).
+- Shared config as versioned npm packages (`@ariseqa/eslint-config`, `@ariseqa/playwright-guardrails`, ...).
 - The gating tools are installed from this repo's lockfile at the pinned ref, not from the consumer's dependencies.
 - An org-level required workflow (rulesets) runs as a backstop if a caller is removed.
 

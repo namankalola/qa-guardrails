@@ -4,10 +4,10 @@ import tseslint from 'typescript-eslint';
 import playwrightPlugin from 'eslint-plugin-playwright';
 import prettier from 'eslint-config-prettier';
 import globals from 'globals';
-import { resolvePolicy } from '@acme/guardrails';
-import acmeQa from './plugin/index.js';
+import { resolvePolicy } from '@ariseqa/guardrails';
+import ariseqaQa from './plugin/index.js';
 
-export { acmeQa };
+export { ariseqaQa };
 
 // The flat preset carries its own plugin instance; reuse it everywhere so ESLint
 // does not see two different "playwright" plugins.
@@ -42,7 +42,7 @@ const HARD_WAIT_RULES = {
  * Rule severities and globs are driven by the repo's guardrails.config.yml so
  * local lint, the pre-commit hook and CI all apply the same policy.
  *
- * @param {{ tsconfigRootDir?: string, policy?: import('@acme/guardrails').Policy, ignores?: string[] }} [options]
+ * @param {{ tsconfigRootDir?: string, policy?: import('@ariseqa/guardrails').Policy, ignores?: string[] }} [options]
  */
 export function createConfig({ tsconfigRootDir = process.cwd(), policy, ignores = [] } = {}) {
   const { codeQuality, framework, testQuality } = policy ?? resolvePolicy({ cwd: tsconfigRootDir }).policy;
@@ -61,7 +61,7 @@ export function createConfig({ tsconfigRootDir = process.cwd(), policy, ignores 
         globals: globals.node,
       },
       linterOptions: { reportUnusedDisableDirectives: 'error' },
-      plugins: { playwright, 'acme-qa': acmeQa },
+      plugins: { playwright, ariseqa: ariseqaQa },
       rules: {
         eqeqeq: ['error', 'smart'],
         'no-var': 'error',
@@ -95,7 +95,7 @@ export function createConfig({ tsconfigRootDir = process.cwd(), policy, ignores 
         'no-duplicate-imports': 'error',
         'no-lonely-if': 'warn',
         ...HARD_WAIT_RULES,
-        'acme-qa/no-cross-app-import': [pom, { appsDir: framework.appsDir }],
+        'ariseqa/no-cross-app-import': [pom, { appsDir: framework.appsDir }],
       },
     },
     { files: ['**/*.{js,mjs,cjs}'], extends: [tseslint.configs.disableTypeChecked] },
@@ -117,9 +117,9 @@ export function createConfig({ tsconfigRootDir = process.cwd(), policy, ignores 
         'playwright/consistent-spacing-between-blocks': 'off', // layout belongs to Prettier
         'playwright/no-conditional-in-test': 'off', // data-driven rows branch on expectedResult by design
         'playwright/no-conditional-expect': 'off',
-        'acme-qa/require-test-tag': [testQuality.requireTags ? 'error' : 'off', { allowed: testQuality.allowedTags }],
-        'acme-qa/no-page-in-spec': pom,
-        'acme-qa/no-inline-locator': pom,
+        'ariseqa/require-test-tag': [testQuality.requireTags ? 'error' : 'off', { allowed: testQuality.allowedTags }],
+        'ariseqa/no-page-in-spec': pom,
+        'ariseqa/no-inline-locator': pom,
         '@typescript-eslint/no-restricted-imports': [
           pom,
           {
@@ -140,7 +140,7 @@ export function createConfig({ tsconfigRootDir = process.cwd(), policy, ignores 
     // 2. Framework layering - page objects
     {
       files: framework.pageObjectGlobs,
-      rules: { 'acme-qa/page-object-encapsulation': pom },
+      rules: { 'ariseqa/page-object-encapsulation': pom },
     },
 
     prettier,
