@@ -1,0 +1,14 @@
+failure-threshold: warning
+trustedRegistries:
+  - mcr.microsoft.com
+  - docker.io
+  - ghcr.io
+override:
+  error:
+    - DL3002 # last USER must not be root
+    - DL3007 # never use :latest
+    - DL3020 # COPY, not ADD, for files
+    - DL3025 # JSON form for CMD/ENTRYPOINT
+label-schema:
+  org.opencontainers.image.source: url
+strict-labels: false

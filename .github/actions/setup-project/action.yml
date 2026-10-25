@@ -1,0 +1,63 @@
+name: Set up project
+description: Detect the package manager from the lockfile, set up Node with caching, and install dependencies reproducibly.
+
+inputs:
+  node-version:
+    description: Node.js version
+    default: '22'
+  working-directory:
+    description: Directory containing package.json
+    default: '.'
+  ignore-scripts:
+    description: Skip dependency lifecycle scripts during install (supply-chain hardening)
+    default: 'true'
+
+outputs:
+  package-manager:
+    description: npm | pnpm | yarn
+    value: ${{ steps.detect.outputs.pm }}
+  exec:
+    description: Command prefix to run a locally installed binary (e.g. "npx --no-install")
+    value: ${{ steps.detect.outputs.exec }}
+
+runs:
+  using: composite
+  steps:
+    - id: detect
+      shell: bash
+      working-directory: ${{ inputs.working-directory }}
+      run: |
+        if [ -f pnpm-lock.yaml ]; then
+          echo "pm=pnpm" >> "$GITHUB_OUTPUT"; echo "exec=pnpm exec" >> "$GITHUB_OUTPUT"; echo "lock=pnpm-lock.yaml" >> "$GITHUB_OUTPUT"
+        elif [ -f yarn.lock ]; then
+          echo "pm=yarn" >> "$GITHUB_OUTPUT"; echo "exec=yarn exec" >> "$GITHUB_OUTPUT"; echo "lock=yarn.lock" >> "$GITHUB_OUTPUT"
+        elif [ -f package-lock.json ]; then
+          echo "pm=npm" >> "$GITHUB_OUTPUT"; echo "exec=npx --no-install" >> "$GITHUB_OUTPUT"; echo "lock=package-lock.json" >> "$GITHUB_OUTPUT"
+        else
+          echo "::error file=package.json::No lockfile found - commit package-lock.json, pnpm-lock.yaml or yarn.lock for reproducible installs"
+          exit 1
+        fi
+
+    - if: steps.detect.outputs.pm != 'npm'
+      shell: bash
+      run: corepack enable
+
+    - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+      with:
+        node-version: ${{ inputs.node-version }}
+        cache: ${{ steps.detect.outputs.pm }}
+        cache-dependency-path: ${{ inputs.working-directory }}/${{ steps.detect.outputs.lock }}
+
+    - shell: bash
+      working-directory: ${{ inputs.working-directory }}
+      env:
+        PM: ${{ steps.detect.outputs.pm }}
+        IGNORE_SCRIPTS: ${{ inputs.ignore-scripts }}
+      run: |
+        flag=""
+        [ "$IGNORE_SCRIPTS" = "true" ] && flag="--ignore-scripts"
+        case "$PM" in
+          npm)  npm ci $flag --no-audit --no-fund ;;
+          pnpm) pnpm install --frozen-lockfile $flag ;;
+          yarn) yarn install --immutable $( [ -n "$flag" ] && echo "--mode=skip-build" ) ;;
+        esac

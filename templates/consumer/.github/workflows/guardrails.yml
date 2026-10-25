@@ -1,0 +1,29 @@
+# Thin caller for the enterprise guardrails. Everything else lives centrally.
+# Dependabot (github-actions ecosystem) bumps the pinned SHA below; keep
+# `guardrails-ref` on the same release.
+name: guardrails
+
+on:
+  pull_request:
+  merge_group:
+  push:
+    branches: [main]
+
+# Must cover the most any guardrails job requests (CodeQL uploads results).
+permissions:
+  contents: read
+  security-events: write
+
+concurrency:
+  group: guardrails-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  guardrails:
+    uses: acme-org/acme-qa-guardrails/.github/workflows/guardrails.yml@v1
+    with:
+      guardrails-ref: v1
+      test-command: npm run test:smoke
+      playwright-browsers: chromium
+    secrets:
+      test-env: ${{ secrets.TEST_ENV }}

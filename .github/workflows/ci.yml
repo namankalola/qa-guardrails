@@ -1,0 +1,43 @@
+# CI for the guardrails repository itself. It holds itself to the same bar it sets.
+name: ci
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version-file: .nvmrc
+      - run: corepack enable && pnpm install --frozen-lockfile --ignore-scripts
+      - run: pnpm test
+      - run: pnpm lint --max-warnings 0
+      - run: pnpm format:check
+      - name: Own policy and workflows must pass the guardrails
+        run: |
+          pnpm guardrails validate > /dev/null
+          pnpm guardrails pinned-actions --trusted-owner acme-org
+      - name: actionlint (checksum verified)
+        env:
+          ACTIONLINT_VERSION: 1.7.12
+        run: |
+          base="https://github.com/rhysd/actionlint/releases/download/v${ACTIONLINT_VERSION}"
+          tarball="actionlint_${ACTIONLINT_VERSION}_linux_amd64.tar.gz"
+          curl -fsSLO "$base/$tarball" && curl -fsSLO "$base/actionlint_${ACTIONLINT_VERSION}_checksums.txt"
+          grep " ${tarball}\$" "actionlint_${ACTIONLINT_VERSION}_checksums.txt" | sha256sum --check --strict
+          tar -xzf "$tarball" actionlint && ./actionlint -color

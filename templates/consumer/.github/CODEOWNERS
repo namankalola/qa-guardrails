@@ -1,0 +1,9 @@
+# Default owners for everything
+*                          @acme-org/my-team
+
+# Shared framework code and guardrail wiring need framework-owner review
+/src/core/                 @acme-org/qa-platform
+/playwright.*.config.ts    @acme-org/qa-platform
+/guardrails.config.yml     @acme-org/qa-platform
+/.github/                  @acme-org/qa-platform
+/.gitleaks.toml            @acme-org/appsec

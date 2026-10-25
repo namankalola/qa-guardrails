@@ -1,0 +1,32 @@
+{
+  "name": "@acme/playwright-guardrails",
+  "version": "1.0.0",
+  "description": "Playwright config wrapper enforcing retry caps, forbidOnly, quarantine exclusion and gate reports",
+  "main": "index.cjs",
+  "types": "index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./index.d.ts",
+      "default": "./index.cjs"
+    }
+  },
+  "files": [
+    "index.cjs",
+    "index.d.ts"
+  ],
+  "peerDependencies": {
+    "@playwright/test": ">=1.45.0"
+  },
+  "engines": {
+    "node": ">=22"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/acme-org/acme-qa-guardrails.git",
+    "directory": "packages/playwright-guardrails"
+  },
+  "publishConfig": {
+    "registry": "https://npm.pkg.github.com"
+  },
+  "license": "UNLICENSED"
+}

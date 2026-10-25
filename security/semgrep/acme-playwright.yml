@@ -1,0 +1,108 @@
+# Enterprise Semgrep rules for Playwright + TypeScript automation code.
+# ERROR blocks the PR (security.sast.failOn: error); WARNING blocks only when a
+# team opts into failOn: warning.
+rules:
+  - id: acme.tls-verification-disabled
+    languages: [typescript, javascript]
+    severity: ERROR
+    message: >-
+      TLS certificate verification is disabled. Tests that skip verification hide man-in-the-middle
+      and certificate-expiry problems and leak credentials on hostile networks. Trust the internal CA instead.
+    metadata: { category: security, cwe: 'CWE-295', asvs: 'V9.2.1' }
+    pattern-either:
+      - pattern: 'process.env.NODE_TLS_REJECT_UNAUTHORIZED = "0"'
+      - pattern: '{..., rejectUnauthorized: false, ...}'
+      - pattern: '{..., ignoreHTTPSErrors: true, ...}'
+
+  - id: acme.hardcoded-authorization-header
+    languages: [typescript, javascript]
+    severity: ERROR
+    message: >-
+      Authorization header built from a string literal. Load credentials from the CI secret store via
+      app.config.ts / process.env, never from source.
+    metadata: { category: security, cwe: 'CWE-798', asvs: 'V2.10.4' }
+    patterns:
+      - pattern-either:
+          - pattern: '{..., Authorization: "$TOKEN", ...}'
+          - pattern: '{..., "Authorization": "$TOKEN", ...}'
+          - pattern: '{..., "x-api-key": "$TOKEN", ...}'
+      - metavariable-regex:
+          metavariable: $TOKEN
+          regex: '^(Bearer |Basic )?[A-Za-z0-9._~+/=-]{12,}$'
+
+  - id: acme.request-headers-logged
+    languages: [typescript, javascript]
+    severity: WARNING
+    message: >-
+      Request headers are passed to a logger. Headers carry Authorization / API-key values that end up
+      in CI logs and test reports. Log a redacted copy (e.g. redactHeaders(headers)).
+    metadata: { category: security, cwe: 'CWE-532', asvs: 'V7.1.1' }
+    pattern-either:
+      - pattern: '$LOGGER.$LEVEL(..., {..., headers: $H, ...}, ...)'
+      - pattern: '$LOGGER.$LEVEL(..., $X.headers, ...)'
+    paths:
+      exclude: ['**/*.spec.ts']
+
+  - id: acme.secret-logged
+    languages: [typescript, javascript]
+    severity: WARNING
+    message: A value that looks like a credential is logged. Redact it before logging.
+    metadata: { category: security, cwe: 'CWE-532' }
+    patterns:
+      - pattern-either:
+          - pattern: 'console.$M(..., $X.$F, ...)'
+          - pattern: '$LOGGER.$M(..., $X.$F, ...)'
+      - metavariable-regex:
+          metavariable: $F
+          regex: '(?i)^(password|passwd|secret|token|apikey|api_key|apiKey|authorization|accessToken|refreshToken)$'
+
+  - id: acme.shell-command-injection
+    languages: [typescript, javascript]
+    severity: ERROR
+    message: Shell command built with interpolation. Use execFile/spawn with an argument array.
+    metadata: { category: security, cwe: 'CWE-78', asvs: 'V5.3.8' }
+    pattern-either:
+      - pattern: 'exec(`...${$X}...`, ...)'
+      - pattern: 'execSync(`...${$X}...`, ...)'
+      - pattern: '$CP.exec(`...${$X}...`, ...)'
+      - pattern: '$CP.execSync(`...${$X}...`, ...)'
+
+  - id: acme.dynamic-code-execution
+    languages: [typescript, javascript]
+    severity: ERROR
+    message: Dynamic code execution (eval / Function constructor / vm) is not allowed.
+    metadata: { category: security, cwe: 'CWE-95' }
+    pattern-either:
+      - pattern: eval(...)
+      - pattern: new Function(...)
+      - pattern: vm.runInThisContext(...)
+      - pattern: vm.runInNewContext(...)
+
+  - id: acme.query-language-interpolation
+    languages: [typescript, javascript]
+    severity: WARNING
+    message: >-
+      Query string (JQL/SQL) built by interpolation. Quote and escape values, or use the API's parameter
+      support, so ticket keys or data from Excel cannot change the query.
+    metadata: { category: security, cwe: 'CWE-943' }
+    pattern-regex: '(?i)`[^`]*\b(project|status|issuekey|where)\s*(=|in)\s*[''"(]?\$\{'
+
+  - id: acme.insecure-random-test-data
+    languages: [typescript, javascript]
+    severity: WARNING
+    message: Math.random() used for something named like a secret. Use crypto.randomUUID() / randomBytes().
+    metadata: { category: security, cwe: 'CWE-338' }
+    patterns:
+      - pattern: '$V = <... Math.random() ...>'
+      - metavariable-regex:
+          metavariable: $V
+          regex: '(?i).*(password|secret|token|key).*'
+
+  - id: acme.playwright-only-committed
+    languages: [typescript, javascript]
+    severity: ERROR
+    message: test.only / describe.only would silently disable the rest of the suite in CI.
+    metadata: { category: correctness }
+    pattern-either:
+      - pattern: test.only(...)
+      - pattern: test.describe.only(...)

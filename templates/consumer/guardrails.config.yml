@@ -1,0 +1,18 @@
+# Team overrides for the enterprise guardrails.
+# Only list what differs from the defaults:
+# https://github.com/acme-org/acme-qa-guardrails/blob/main/packages/guardrails/defaults.yml
+# Every value is bounds-checked in CI; hard floors cannot be set here at all.
+version: 1
+team: my-team
+
+testQuality:
+  maxRetries: 1
+  flakeRateBudgetPct: 2
+
+security:
+  vulnerabilities:
+    failOn: high
+    ignore: []
+    # - id: GHSA-xxxx-xxxx-xxxx
+    #   reason: No patched version yet; not reachable from test code (QA-123)
+    #   expires: 2026-12-31

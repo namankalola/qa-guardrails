@@ -1,0 +1,44 @@
+{
+  "name": "@acme/eslint-config",
+  "version": "1.0.0",
+  "description": "Enterprise ESLint flat config for Playwright + TypeScript repos, with the acme-qa framework rules",
+  "type": "module",
+  "exports": {
+    ".": "./index.js",
+    "./floor": "./floor.js",
+    "./plugin": "./plugin/index.js"
+  },
+  "files": [
+    "index.js",
+    "floor.js",
+    "plugin"
+  ],
+  "dependencies": {
+    "@acme/guardrails": "workspace:^",
+    "@eslint/js": "^10.0.1",
+    "eslint-config-prettier": "^10.1.8",
+    "eslint-plugin-playwright": "^2.12.1",
+    "globals": "^17.13.0",
+    "typescript-eslint": "^8.72.0"
+  },
+  "peerDependencies": {
+    "eslint": "^10.0.0",
+    "typescript": ">=5.4.0"
+  },
+  "devDependencies": {
+    "eslint": "^10.13.0",
+    "typescript": "~5.9.3"
+  },
+  "engines": {
+    "node": ">=22"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/acme-org/acme-qa-guardrails.git",
+    "directory": "packages/eslint-config"
+  },
+  "publishConfig": {
+    "registry": "https://npm.pkg.github.com"
+  },
+  "license": "UNLICENSED"
+}

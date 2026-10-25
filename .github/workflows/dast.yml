@@ -1,0 +1,72 @@
+# Reusable DAST baseline (OWASP ZAP passive scan).
+#
+# Runs only against a target listed in guardrails.config.yml
+# security.dast.authorizedHosts - scan only systems you own or have written
+# authorisation to test. Schedule it (nightly) or run it after a deploy to a
+# test environment; it is deliberately not part of the PR gate.
+name: dast
+
+on:
+  workflow_call:
+    inputs:
+      guardrails-ref:
+        type: string
+        default: v1
+      target-url:
+        description: Override security.dast.targetUrl (must still be an authorised host)
+        type: string
+        default: ''
+      rules-file:
+        description: ZAP rules TSV in the calling repository (IGNORE/WARN/FAIL per rule id). Falls back to the enterprise file.
+        type: string
+        default: .zap/rules.tsv
+      fail-on-warnings:
+        description: Fail when ZAP raises WARN-level alerts (FAIL-level alerts always fail)
+        type: boolean
+        default: false
+    secrets:
+      guardrails-token:
+        required: false
+
+permissions: {}
+
+jobs:
+  zap-baseline:
+    name: zap-baseline
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          repository: acme-org/acme-qa-guardrails
+          ref: ${{ inputs.guardrails-ref }}
+          token: ${{ secrets.guardrails-token || github.token }}
+          path: .guardrails
+          persist-credentials: false
+      - id: tools
+        uses: ./.guardrails/.github/actions/setup-guardrails
+      - id: target
+        name: Authorise target
+        env:
+          TARGET_URL: ${{ inputs.target-url }}
+        run: ${{ steps.tools.outputs.cli }} dast-target ${TARGET_URL:+--target "$TARGET_URL"}
+      - id: rules
+        if: steps.target.outputs.enabled == 'true'
+        env:
+          RULES: ${{ inputs.rules-file }}
+        run: |
+          if [ -f "$RULES" ]; then echo "file=$RULES" >> "$GITHUB_OUTPUT"; else echo "file=.guardrails/security/zap/rules.tsv" >> "$GITHUB_OUTPUT"; fi
+      - uses: zaproxy/action-baseline@de8ad967d3548d44ef623df22cf95c3b0baf8b25 # v0.15.0
+        if: steps.target.outputs.enabled == 'true'
+        with:
+          target: ${{ steps.target.outputs.target }}
+          rules_file_name: ${{ steps.rules.outputs.file }}
+          fail_action: ${{ inputs.fail-on-warnings }}
+          allow_issue_writing: false
+          artifact_name: zap-baseline-report
+          cmd_options: -a -j

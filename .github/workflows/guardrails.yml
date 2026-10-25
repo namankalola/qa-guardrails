@@ -1,0 +1,450 @@
+# Reusable enterprise guardrails pipeline.
+#
+# Consumers call it from a thin workflow (see templates/consumer/.github/workflows/guardrails.yml):
+#
+#   jobs:
+#     guardrails:
+#       uses: acme-org/acme-qa-guardrails/.github/workflows/guardrails.yml@v1
+#       with:
+#         test-command: npm run test:smoke
+#
+# Branch rulesets require the single status check "guardrails / gate".
+name: guardrails
+
+on:
+  workflow_call:
+    inputs:
+      guardrails-ref:
+        description: Ref of acme-qa-guardrails whose tooling and floors apply. Keep in step with the @ref in `uses:`.
+        type: string
+        default: v1
+      node-version:
+        type: string
+        default: '22'
+      working-directory:
+        description: Repository sub-directory that holds package.json
+        type: string
+        default: '.'
+      list-command:
+        description: >
+          Writes Playwright `--list --reporter=json` output for every config into reports/guardrails/list/
+          (one JSON file per config). Empty = `playwright test --list` with the default config.
+        type: string
+        default: ''
+      test-command:
+        description: Command that runs the blocking test suite. Empty skips the test job.
+        type: string
+        default: ''
+      playwright-browsers:
+        description: Browsers to install for the test job
+        type: string
+        default: chromium
+      test-timeout-minutes:
+        type: number
+        default: 30
+    secrets:
+      guardrails-token:
+        description: Token able to read acme-org/acme-qa-guardrails (only needed while that repository is private)
+        required: false
+      test-env:
+        description: dotenv-formatted secrets written to .env for the test job only
+        required: false
+
+permissions: {}
+
+env:
+  GUARDRAILS_REPOSITORY: acme-org/acme-qa-guardrails
+  FORCE_COLOR: '1'
+
+jobs:
+  policy:
+    name: policy
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    permissions:
+      contents: read
+    outputs:
+      policy: ${{ steps.validate.outputs.policy }}
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          repository: ${{ env.GUARDRAILS_REPOSITORY }}
+          ref: ${{ inputs.guardrails-ref }}
+          token: ${{ secrets.guardrails-token || github.token }}
+          path: .guardrails
+          persist-credentials: false
+      - id: tools
+        uses: ./.guardrails/.github/actions/setup-guardrails
+        with:
+          node-version: ${{ inputs.node-version }}
+      - id: validate
+        name: Resolve guardrails.config.yml against enterprise defaults and floors
+        run: ${{ steps.tools.outputs.cli }} validate --cwd "${{ inputs.working-directory }}"
+
+  # FLOOR: secret scanning always runs and always blocks, whatever the team policy says.
+  secrets:
+    name: secrets
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          repository: ${{ env.GUARDRAILS_REPOSITORY }}
+          ref: ${{ inputs.guardrails-ref }}
+          token: ${{ secrets.guardrails-token || github.token }}
+          path: .guardrails
+          persist-credentials: false
+      - name: Install gitleaks (checksum verified)
+        env:
+          GITLEAKS_VERSION: 8.30.1
+        run: |
+          base="https://github.com/gitleaks/gitleaks/releases/download/v${GITLEAKS_VERSION}"
+          tarball="gitleaks_${GITLEAKS_VERSION}_linux_x64.tar.gz"
+          curl -fsSLO "$base/$tarball" && curl -fsSLO "$base/gitleaks_${GITLEAKS_VERSION}_checksums.txt"
+          grep " ${tarball}\$" "gitleaks_${GITLEAKS_VERSION}_checksums.txt" | sha256sum --check --strict
+          tar -xzf "$tarball" gitleaks && sudo install gitleaks /usr/local/bin/ && rm -f gitleaks "$tarball"
+      - name: Scan commits for secrets
+        env:
+          BASE_SHA: ${{ github.event.pull_request.base.sha }}
+          HEAD_SHA: ${{ github.event.pull_request.head.sha }}
+        run: |
+          config=".gitleaks.toml"
+          [ -f "$config" ] || config=".guardrails/security/gitleaks/gitleaks.toml"
+          range=()
+          [ -n "$BASE_SHA" ] && range=(--log-opts "${BASE_SHA}..${HEAD_SHA}")
+          gitleaks git . --config "$config" "${range[@]}" --redact --no-banner \
+            --report-format sarif --report-path gitleaks.sarif
+      - if: failure()
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: gitleaks-report
+          path: gitleaks.sarif
+          retention-days: 14
+
+  quality:
+    name: quality
+    needs: policy
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    permissions:
+      contents: read
+    env:
+      POLICY: ${{ needs.policy.outputs.policy }}
+    defaults:
+      run:
+        working-directory: ${{ inputs.working-directory }}
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          repository: ${{ env.GUARDRAILS_REPOSITORY }}
+          ref: ${{ inputs.guardrails-ref }}
+          token: ${{ secrets.guardrails-token || github.token }}
+          path: .guardrails
+          persist-credentials: false
+      - id: tools
+        uses: ./.guardrails/.github/actions/setup-guardrails
+        with:
+          node-version: ${{ inputs.node-version }}
+      - id: project
+        uses: ./.guardrails/.github/actions/setup-project
+        with:
+          node-version: ${{ inputs.node-version }}
+          working-directory: ${{ inputs.working-directory }}
+
+      # FLOOR: zero type errors.
+      - name: Typecheck
+        run: ${{ steps.project.outputs.exec }} tsc --noEmit
+
+      - name: Lint (repository config)
+        run: ${{ steps.project.outputs.exec }} eslint . --max-warnings "${{ fromJSON(needs.policy.outputs.policy).codeQuality.maxWarnings }}"
+
+      # FLOOR: central rules that a repository cannot switch off locally or with eslint-disable comments.
+      - name: Lint (enterprise floor, inline disables ignored)
+        env:
+          ROOT: ${{ steps.tools.outputs.root }}
+        run: node "$ROOT/node_modules/eslint/bin/eslint.js" --config "$ROOT/packages/eslint-config/floor.js" --no-inline-config "**/*.ts"
+
+      - name: Formatting
+        if: fromJSON(needs.policy.outputs.policy).codeQuality.formatCheck
+        run: ${{ steps.project.outputs.exec }} prettier --check .
+
+      - name: Conventional PR title
+        if: github.event_name == 'pull_request' && fromJSON(needs.policy.outputs.policy).codeQuality.conventionalCommits
+        env:
+          ROOT: ${{ steps.tools.outputs.root }}
+          PR_TITLE: ${{ github.event.pull_request.title }}
+        run: printf '%s\n' "$PR_TITLE" | node "$ROOT/node_modules/@commitlint/cli/cli.js" --config "$ROOT/packages/commitlint-config/index.js"
+
+  tests:
+    name: tests
+    needs: policy
+    if: inputs.test-command != ''
+    runs-on: ubuntu-latest
+    timeout-minutes: ${{ inputs.test-timeout-minutes }}
+    permissions:
+      contents: read
+    defaults:
+      run:
+        working-directory: ${{ inputs.working-directory }}
+    env:
+      CI: 'true'
+      GUARDRAILS_MAX_RETRIES: ${{ fromJSON(needs.policy.outputs.policy).testQuality.maxRetries }}
+      GUARDRAILS_QUARANTINE_TAG: ${{ fromJSON(needs.policy.outputs.policy).testQuality.quarantine.tag }}
+      GUARDRAILS_QUARANTINE: exclude
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          repository: ${{ env.GUARDRAILS_REPOSITORY }}
+          ref: ${{ inputs.guardrails-ref }}
+          token: ${{ secrets.guardrails-token || github.token }}
+          path: .guardrails
+          persist-credentials: false
+      - id: tools
+        uses: ./.guardrails/.github/actions/setup-guardrails
+        with:
+          node-version: ${{ inputs.node-version }}
+      - id: project
+        uses: ./.guardrails/.github/actions/setup-project
+        with:
+          node-version: ${{ inputs.node-version }}
+          working-directory: ${{ inputs.working-directory }}
+
+      - name: Write test secrets
+        env:
+          TEST_ENV: ${{ secrets.test-env }}
+        run: |
+          if [ -n "$TEST_ENV" ]; then (umask 077; printf '%s\n' "$TEST_ENV" > .env); fi
+
+      - name: Quarantine and skip hygiene
+        env:
+          LIST_COMMAND: ${{ inputs.list-command }}
+          EXEC: ${{ steps.project.outputs.exec }}
+        run: |
+          mkdir -p reports/guardrails/list
+          if [ -n "$LIST_COMMAND" ]; then
+            bash -euo pipefail -c "$LIST_COMMAND"
+          else
+            GUARDRAILS_QUARANTINE=include $EXEC playwright test --list --reporter=json > reports/guardrails/list/default.json
+          fi
+          args=(); for f in reports/guardrails/list/*.json; do args+=(--report "$f"); done
+          ${{ steps.tools.outputs.cli }} quarantine "${args[@]}"
+
+      - name: Install browsers
+        run: ${{ steps.project.outputs.exec }} playwright install --with-deps ${{ inputs.playwright-browsers }}
+
+      - name: Run blocking suite (quarantined tests excluded)
+        env:
+          TEST_COMMAND: ${{ inputs.test-command }}
+        run: bash -euo pipefail -c "$TEST_COMMAND"
+
+      - name: Flake-rate budget
+        if: ${{ !cancelled() }}
+        run: |
+          shopt -s nullglob
+          args=(); for f in reports/guardrails/*.json; do args+=(--report "$f"); done
+          if [ ${#args[@]} -eq 0 ]; then
+            echo "::error::No JSON report under reports/guardrails/ - wrap the Playwright config with withGuardrails()"
+            exit 1
+          fi
+          ${{ steps.tools.outputs.cli }} flakes "${args[@]}" --out reports/guardrails/flakes/summary.json
+
+      - if: ${{ !cancelled() }}
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: test-reports
+          path: ${{ inputs.working-directory }}/reports/
+          retention-days: 14
+          if-no-files-found: ignore
+
+  dependencies:
+    name: dependencies
+    needs: policy
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    permissions:
+      contents: read
+    defaults:
+      run:
+        working-directory: ${{ inputs.working-directory }}
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          repository: ${{ env.GUARDRAILS_REPOSITORY }}
+          ref: ${{ inputs.guardrails-ref }}
+          token: ${{ secrets.guardrails-token || github.token }}
+          path: .guardrails
+          persist-credentials: false
+      - id: tools
+        uses: ./.guardrails/.github/actions/setup-guardrails
+        with:
+          node-version: ${{ inputs.node-version }}
+      - id: project
+        uses: ./.guardrails/.github/actions/setup-project
+        with:
+          node-version: ${{ inputs.node-version }}
+          working-directory: ${{ inputs.working-directory }}
+
+      - name: Vulnerability gate (critical always blocks)
+        env:
+          PM: ${{ steps.project.outputs.package-manager }}
+        run: |
+          # audit exits non-zero when it finds anything; the gate below decides what blocks
+          case "$PM" in
+            npm)  npm audit --json > audit.json || true ;;
+            pnpm) pnpm audit --json > audit.json || true ;;
+            yarn) echo "::error::yarn audit output is not supported by the gate yet"; exit 1 ;;
+          esac
+          ${{ steps.tools.outputs.cli }} audit --report audit.json
+
+      - name: Licence gate
+        run: ${{ steps.tools.outputs.cli }} licenses
+
+      - name: OSV scan (informational, broader advisory coverage)
+        continue-on-error: true
+        run: |
+          docker run --rm -v "$PWD:/src" -w /src ghcr.io/google/osv-scanner:v2.7.0 \
+            scan source --recursive --format sarif --output-file osv.sarif . || true
+
+      - name: SBOM (CycloneDX)
+        if: fromJSON(needs.policy.outputs.policy).supplyChain.sbom
+        run: |
+          docker run --rm -v "$PWD:/src" -w /src aquasec/trivy:0.76.1 \
+            fs --format cyclonedx --output sbom.cdx.json --skip-dirs .guardrails .
+
+      - if: ${{ !cancelled() }}
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: dependency-reports
+          path: |
+            ${{ inputs.working-directory }}/audit.json
+            ${{ inputs.working-directory }}/osv.sarif
+            ${{ inputs.working-directory }}/sbom.cdx.json
+          retention-days: 30
+          if-no-files-found: ignore
+
+  sast:
+    name: sast
+    needs: policy
+    if: fromJSON(needs.policy.outputs.policy).security.sast.semgrep
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    permissions:
+      contents: read
+    container:
+      image: semgrep/semgrep:1.182.0
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          repository: ${{ env.GUARDRAILS_REPOSITORY }}
+          ref: ${{ inputs.guardrails-ref }}
+          token: ${{ secrets.guardrails-token || github.token }}
+          path: .guardrails
+          persist-credentials: false
+      - name: Semgrep (enterprise rules + TypeScript pack)
+        env:
+          FAIL_ON: ${{ fromJSON(needs.policy.outputs.policy).security.sast.failOn }}
+          TARGET: ${{ inputs.working-directory }}
+        run: |
+          severities="--severity ERROR"
+          [ "$FAIL_ON" = "warning" ] && severities="--severity ERROR --severity WARNING"
+          semgrep scan --metrics=off --error $severities \
+            --config .guardrails/security/semgrep \
+            --config p/typescript \
+            --exclude .guardrails --exclude reports \
+            --sarif-output semgrep.sarif --text "$TARGET"
+      - if: ${{ !cancelled() }}
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: semgrep-report
+          path: semgrep.sarif
+          retention-days: 30
+          if-no-files-found: ignore
+
+  codeql:
+    name: codeql
+    needs: policy
+    if: fromJSON(needs.policy.outputs.policy).security.sast.codeql
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    permissions:
+      contents: read
+      security-events: write
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: github/codeql-action/init@9b3254085494b55a0f7c4c2b3d2d52cc712ce370 # v4.39.1
+        with:
+          languages: javascript-typescript
+          build-mode: none
+          queries: security-extended
+      - uses: github/codeql-action/analyze@9b3254085494b55a0f7c4c2b3d2d52cc712ce370 # v4.39.1
+
+  supply-chain:
+    name: supply-chain
+    needs: policy
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          repository: ${{ env.GUARDRAILS_REPOSITORY }}
+          ref: ${{ inputs.guardrails-ref }}
+          token: ${{ secrets.guardrails-token || github.token }}
+          path: .guardrails
+          persist-credentials: false
+      - id: tools
+        uses: ./.guardrails/.github/actions/setup-guardrails
+        with:
+          node-version: ${{ inputs.node-version }}
+      - name: Third-party actions pinned to commit SHAs
+        run: ${{ steps.tools.outputs.cli }} pinned-actions --trusted-owner acme-org
+
+  # The one required status check. Fails if any gate failed, or if a floor job did not succeed.
+  gate:
+    name: gate
+    if: always()
+    needs: [policy, secrets, quality, tests, dependencies, sast, codeql, supply-chain]
+    runs-on: ubuntu-latest
+    timeout-minutes: 2
+    permissions: {}
+    steps:
+      - name: Evaluate gates
+        env:
+          NEEDS: ${{ toJSON(needs) }}
+        run: |
+          echo "$NEEDS" | jq -r 'to_entries[] | "\(.key): \(.value.result)"'
+          # floors must succeed outright; optional gates may be skipped by policy, never fail
+          for floor in policy secrets quality dependencies; do
+            result=$(echo "$NEEDS" | jq -r --arg j "$floor" '.[$j].result')
+            [ "$result" = "success" ] || { echo "::error::$floor did not succeed ($result)"; exit 1; }
+          done
+          failed=$(echo "$NEEDS" | jq -r '[to_entries[] | select(.value.result == "failure" or .value.result == "cancelled") | .key] | join(", ")')
+          [ -z "$failed" ] || { echo "::error::Failed gates: $failed"; exit 1; }
+          echo "All guardrails passed."

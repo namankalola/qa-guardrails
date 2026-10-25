@@ -1,0 +1,83 @@
+# Enterprise defaults for every repository onboarded to the ACME QA guardrails.
+#
+# Teams override values in their own `guardrails.config.yml`. Every override is
+# validated against bounded limits (see src/schema.mjs). Keys marked FLOOR are
+# hard floors: setting them to anything other than the default fails the
+# `policy` job.
+version: 1
+team: unassigned
+
+codeQuality:
+  typecheck: true # FLOOR - zero TypeScript errors
+  lintErrors: block # FLOOR - zero ESLint errors
+  maxWarnings: 0 # 0..50
+  maxComplexity: 15 # 10..25 (cyclomatic, per function)
+  typeSafety: strict # strict | standard (standard downgrades no-unsafe-* to warnings)
+  formatCheck: true
+  conventionalCommits: true
+
+framework:
+  enforcePom: true # spec/page-object layering rules
+  appsDir: src/apps
+  coreDir: src/core
+  specGlobs: ['**/*.spec.ts']
+  pageObjectGlobs: ['**/*.page.ts']
+
+testQuality:
+  requireTags: true
+  allowedTags: ['@smoke', '@regression', '@sanity', '@api', '@e2e', '@visual', '@quarantine']
+  # Calls that count as an assertion for playwright/expect-expect (regexes on the callee name).
+  # Teams add their own helpers, e.g. '^run[A-Z]\w*Case$' for data-driven case runners.
+  assertFunctionPatterns: ['^expect', '^assert[A-Z]', '^verify[A-Z]']
+  maxRetries: 2 # 0..2
+  flakeRateBudgetPct: 2 # 0..10, % of executed tests that may pass only on retry
+  requireSkipReason: true # test.skip/fixme must name a ticket
+  quarantine:
+    tag: '@quarantine'
+    maxDays: 30 # 1..60 - quarantine annotations must expire within this window
+    maxPct: 5 # 0..10 - share of the suite that may sit in quarantine
+    ticketPattern: '[A-Z][A-Z0-9]+-\d+'
+
+security:
+  secretScanning: true # FLOOR - any finding blocks
+  vulnerabilities:
+    blockCritical: true # FLOOR - critical advisories always block, never ignorable
+    failOn: high # critical | high | moderate | low
+    ignore: [] # - { id: GHSA-xxxx-xxxx-xxxx, reason: '...', expires: 'YYYY-MM-DD' } (max 90 days)
+  licenses:
+    allow:
+      - MIT
+      - MIT-0
+      - ISC
+      - Apache-2.0
+      - BSD-2-Clause
+      - BSD-3-Clause
+      - 0BSD
+      - CC0-1.0
+      - CC-BY-3.0
+      - CC-BY-4.0
+      - Unlicense
+      - BlueOak-1.0.0
+      - Python-2.0
+      - Zlib
+    additionalAllow: [] # team additions; copyleft/source-available licenses are rejected
+    internalScopes: ['@acme'] # first-party packages (UNLICENSED, proprietary) are not third-party dependencies
+    exceptions: [] # - { package: 'name', reason: '...' }
+  sast:
+    semgrep: true
+    codeql: false # needs GitHub Advanced Security on private repos
+    failOn: error # error | warning
+  dast:
+    enabled: false
+    targetUrl: ''
+    authorizedHosts: [] # DAST only runs against hosts listed here - systems you own or are authorised to test
+  container:
+    enabled: false
+    dockerfile: Dockerfile
+    context: .
+    failOn: high # critical | high | medium
+
+supplyChain:
+  pinnedActions: warn # warn | block - third-party actions pinned to a full commit SHA
+  sbom: true
+  provenance: true

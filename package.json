@@ -1,0 +1,26 @@
+{
+  "name": "acme-qa-guardrails",
+  "private": true,
+  "description": "Central quality, test, security and CI/CD guardrails for ACME Playwright + TypeScript repositories",
+  "type": "module",
+  "packageManager": "pnpm@10.34.8",
+  "engines": {
+    "node": ">=22"
+  },
+  "scripts": {
+    "test": "node --test \"packages/*/test/**/*.test.{js,mjs,cjs}\"",
+    "lint": "eslint .",
+    "format": "prettier --write .",
+    "format:check": "prettier --check .",
+    "guardrails": "node packages/guardrails/bin/acme-guardrails.mjs"
+  },
+  "devDependencies": {
+    "@commitlint/cli": "^21.2.4",
+    "@eslint/js": "^10.0.1",
+    "@playwright/test": "^1.64.1",
+    "eslint": "^10.13.0",
+    "globals": "^17.13.0",
+    "prettier": "^3.9.10",
+    "typescript": "~5.9.3"
+  }
+}

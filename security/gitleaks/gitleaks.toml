@@ -1,0 +1,30 @@
+# Enterprise gitleaks config: the full upstream rule set plus ACME-specific rules.
+# Repos may add their own .gitleaks.toml (see templates/consumer/.gitleaks.toml);
+# allowlists there must be narrow (exact path + regex) and reviewed by CODEOWNERS.
+title = "acme enterprise gitleaks"
+
+[extend]
+useDefault = true
+
+[[rules]]
+id = "acme-jira-api-token"
+description = "Atlassian / Jira API token"
+regex = '''(?i)(?:jira|atlassian)[\w.-]{0,20}(?:token|apikey|api_key)\s*[:=]\s*['"]?(ATATT[A-Za-z0-9_\-=]{20,})'''
+secretGroup = 1
+keywords = ["atatt"]
+
+[[rules]]
+id = "acme-dotenv-credential"
+description = "Credential assigned in a committed .env-style file"
+path = '''(^|/)\.env(\.[\w-]+)?$'''
+regex = '''(?i)^\s*[\w.-]*(password|passwd|secret|token|apikey|api_key)[\w.-]*\s*=\s*(\S{6,})'''
+secretGroup = 2
+keywords = ["password", "passwd", "secret", "token", "apikey", "api_key"]
+
+[allowlist]
+description = "Template and generated files"
+paths = [
+  '''(^|/)\.env\.example$''',
+  '''(^|/)reports/''',
+  '''(^|/)(package-lock\.json|pnpm-lock\.yaml|yarn\.lock)$''',
+]

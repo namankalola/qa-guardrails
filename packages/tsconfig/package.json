@@ -1,0 +1,22 @@
+{
+  "name": "@acme/tsconfig",
+  "version": "1.0.0",
+  "description": "Shared strict TypeScript configs",
+  "files": [
+    "base.json",
+    "strictest.json"
+  ],
+  "exports": {
+    "./base.json": "./base.json",
+    "./strictest.json": "./strictest.json"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/acme-org/acme-qa-guardrails.git",
+    "directory": "packages/tsconfig"
+  },
+  "publishConfig": {
+    "registry": "https://npm.pkg.github.com"
+  },
+  "license": "UNLICENSED"
+}

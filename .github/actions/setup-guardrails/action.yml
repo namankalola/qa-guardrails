@@ -1,0 +1,36 @@
+name: Set up guardrails tooling
+description: >
+  Install the guardrails CLI, central ESLint floor config and commitlint from
+  this repository (checked out by the caller at the pinned guardrails ref) and
+  expose the CLI path. Uses the repository's own lockfile, so the tools a team
+  is gated by never depend on that team's dependency tree.
+
+inputs:
+  node-version:
+    description: Node.js version
+    default: '22'
+
+outputs:
+  cli:
+    description: Command that runs the guardrails CLI
+    value: node ${{ steps.paths.outputs.root }}/packages/guardrails/bin/acme-guardrails.mjs
+  root:
+    description: Absolute path of the guardrails checkout
+    value: ${{ steps.paths.outputs.root }}
+
+runs:
+  using: composite
+  steps:
+    - id: paths
+      shell: bash
+      run: echo "root=$(cd "$GITHUB_ACTION_PATH/../../.." && pwd)" >> "$GITHUB_OUTPUT"
+
+    - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+      with:
+        node-version: ${{ inputs.node-version }}
+
+    - shell: bash
+      working-directory: ${{ steps.paths.outputs.root }}
+      run: |
+        corepack enable
+        pnpm install --frozen-lockfile --ignore-scripts

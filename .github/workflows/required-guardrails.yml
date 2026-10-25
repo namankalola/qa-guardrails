@@ -1,0 +1,22 @@
+# Organisation-level required workflow (see governance/rulesets/org-required-workflow.json).
+#
+# Enforced on every repository tagged with the custom property `guardrails=enforced`,
+# so the floors still run even if a team deletes or edits its own guardrails caller.
+# It runs the full pipeline except tests (no repo-specific test command is known here).
+name: required-guardrails
+
+on:
+  pull_request:
+  merge_group:
+
+# The caller must grant the maximum any guardrails job requests (CodeQL uploads results).
+permissions:
+  contents: read
+  security-events: write
+
+jobs:
+  guardrails:
+    if: github.repository != 'acme-org/acme-qa-guardrails'
+    uses: acme-org/acme-qa-guardrails/.github/workflows/guardrails.yml@v1
+    with:
+      guardrails-ref: v1

@@ -1,0 +1,25 @@
+{
+  "name": "@acme/commitlint-config",
+  "version": "1.0.0",
+  "description": "Shared commitlint config (Conventional Commits)",
+  "type": "module",
+  "main": "index.js",
+  "files": [
+    "index.js"
+  ],
+  "dependencies": {
+    "@commitlint/config-conventional": "^21.2.4"
+  },
+  "peerDependencies": {
+    "@commitlint/cli": ">=19.0.0"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/acme-org/acme-qa-guardrails.git",
+    "directory": "packages/commitlint-config"
+  },
+  "publishConfig": {
+    "registry": "https://npm.pkg.github.com"
+  },
+  "license": "UNLICENSED"
+}

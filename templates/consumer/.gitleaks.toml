@@ -1,0 +1,13 @@
+# Repo-level gitleaks config. Keep the enterprise rules (useDefault) and add only
+# narrow allowlists: exact paths plus a regex for the known-public value.
+# Changes to this file require CODEOWNERS (AppSec) review.
+[extend]
+useDefault = true
+
+[allowlist]
+description = "Generated reports and lockfiles"
+paths = [
+  '''(^|/)reports/''',
+  '''(^|/)\.env\.example$''',
+  '''(^|/)(package-lock\.json|pnpm-lock\.yaml)$''',
+]
