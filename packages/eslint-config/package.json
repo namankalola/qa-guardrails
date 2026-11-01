@@ -27,7 +27,7 @@
   },
   "devDependencies": {
     "eslint": "^10.13.0",
-    "typescript": "~5.9.3"
+    "typescript": "~7.0.2"
   },
   "engines": {
     "node": ">=22"
