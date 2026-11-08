@@ -17,16 +17,16 @@
     "@namankalola/guardrails": "workspace:^",
     "@eslint/js": "^10.0.1",
     "eslint-config-prettier": "^10.1.8",
-    "eslint-plugin-playwright": "^2.12.1",
-    "globals": "^17.13.0",
-    "typescript-eslint": "^8.72.0"
+    "eslint-plugin-playwright": "^2.12.2",
+    "globals": "^17.14.0",
+    "typescript-eslint": "^8.72.1"
   },
   "peerDependencies": {
     "eslint": "^10.0.0",
     "typescript": ">=5.4.0"
   },
   "devDependencies": {
-    "eslint": "^10.13.0",
+    "eslint": "^10.14.0",
     "typescript": "~5.9.3"
   },
   "engines": {
